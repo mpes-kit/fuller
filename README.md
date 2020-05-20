@@ -12,7 +12,7 @@ photoemission spectroscopy data. It implements the Markov Random Field model int
 The latest version of the package can be installed via pip
 
 ```
-pip install --upgrade git+https://github.com/VincentStimper/fuller.git
+pip install --upgrade git+https://github.com/mpes-kit/fuller.git
 ```
 
 Alternatively, download the repository and run
