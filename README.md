@@ -36,8 +36,7 @@ and the energy.
 
 ### Reconstruction
 
-All 14 valence band of WSe<sub>2</sub> are visible in the dataset. The optimization was initialized by DFT calculations
-done with the [HSE06](https://aip.scitation.org/doi/10.1063/1.1564060) hybrid functional. The results are shown in the
+All 14 valence band of WSe<sub>2</sub> are visible in the dataset. The optimization was initialized by DFT calculation with [HSE06](https://aip.scitation.org/doi/10.1063/1.1564060) hybrid exchange-correlation functional. The results are shown in the
 figure below.
 
 ![Valence bands of tungsten diselenide reconstructed using MRF model](https://github.com/VincentStimper/fuller/blob/master/images/mrf_rec_init_kx_slices.gif "Valence bands of tungsten diselenide reconstructed using MRF model")
