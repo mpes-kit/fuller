@@ -1,0 +1,9 @@
+# Dev/Deployment
+numpy
+scipy
+matplotlib
+poppy
+natsort
+symmetrize
+tqdm
+silx
