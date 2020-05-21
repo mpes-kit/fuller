@@ -4,7 +4,7 @@
 
 This Python package comprises a set of tools to reconstruct and parametrize the electronic band structure (EBS) from
 photoemission spectroscopy data. It implements the Markov Random Field model introduced in
-[Xian & Stimper et al. (2020)](https://arxiv.org/) in TensorFlow. 
+[Xian & Stimper et al. (2020)](https://arxiv.org/abs/2005.10210) in TensorFlow. 
 
 
 ## Methods of installation
@@ -100,3 +100,20 @@ implementation of the `mclahe` function](https://github.com/VincentStimper/mclah
 * `clip_limit`: Relative intensity limit to be ignored in the histogram equalization
 * `use_gpu`: Flag, if true gpu is used for computations if available
 * `threshold`: Threshold below which intensity values are set to zero
+
+
+## Citation
+
+If you are using this package within your own projects, please cite it as
+> R. P. Xian, V. Stimper, M. Zacharias, S. Dong, M. Dendzik, S. Beaulieu, B. Schölkopf, M. Wolf, L. Rettig, C. Carbogno, S. Bauer, and R. Ernstorfer, "A machine learning route between band mapping and band structure," arXiv:2005.10210, 2020.
+
+Bibtex code
+```
+@article{Xian2020,
+    author={R. P. Xian and V. Stimper and M. Zacharias and S. Dong and M. Dendzik and S. Beaulieu and
+            B. Schölkopf and M. Wolf and L. Rettig and C. Carbogno and S. Bauer and R. Ernstorfer},
+    journal={arXiv:2005.10210},
+    title={A machine learning route between band mapping and band structure},
+    year={2020},
+}
+```
