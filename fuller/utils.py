@@ -132,6 +132,26 @@ def cut_margins(image, margins, offsetx=0, offsety=0):
     return image_cut
 
 
+def findFiles(fdir, fstring='', ftype='h5', **kwds):
+    """
+    Retrieve files named in a similar way from a folder.
+    
+    :Parameters:
+        fdir : str
+            Folder name where the files are stored.
+        fstring : str | ''
+            Extra string in the filename.
+        ftype : str | 'h5'
+            The type of files to retrieve.
+        **kwds : keyword arguments
+            Extra keywords for `natsorted()`.
+    """
+    
+    files = nts.natsorted(g.glob(fdir + fstring + '.' + ftype), **kwds)
+    
+    return files
+
+
 def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
     """ Combine dictionaries and save into a hierarchical structure.
 
@@ -191,6 +211,38 @@ def loadHDF(load_addr, hierarchy='flat', groups='all', track_order=True, dtyp='f
                     outdict[gk] = np.asarray(gv, dtype=dtyp)
 
     return outdict
+
+
+def loadH5Parts(filename, content, outtype='dict', alias=None):
+    """
+    Load specified content from a single complex HDF5 file.
+    
+    :Parameters:
+        filename : str
+            Namestring of the file.
+        content : list/tuple
+            Collection of names for the content to retrieve.
+        outtype : str | 'dict'
+            Option to specify the format of output ('dict', 'list', 'vals').
+        alias : list/tuple | None
+            Collection of aliases to assign to each entry in content in the output dictionary.
+    """
+    
+    with File(filename) as f:
+        if alias is None:
+            outdict = {k: np.array(f[k]) for k in content}
+        else:
+            if len(content) != len(alias):
+                raise ValueError('Not every content entry is assigned an alias!')
+            else:
+                outdict = {ka: np.array(f[k]) for k in content for ka in alias}
+    
+    if outtype == 'dict':
+        return outdict
+    elif outtype == 'list':
+        return list(outdict.items())
+    elif outtype == 'vals':
+        return list(outdict.values())
 
 
 def load_bandstruct(path, form, varnames=[]):
