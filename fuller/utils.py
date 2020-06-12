@@ -400,3 +400,17 @@ def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, se
     cfout *= amp*cfmask*cfmod
     
     return cfout
+
+
+def binarize(cfs, threshold, vals=[0, 1], absolute=True):
+    """ Binarize an array by a threshold.
+    """
+    
+    arr = np.array(cfs)
+    if absolute:
+        arr = np.abs(arr)
+    
+    arr[arr < threshold] = vals[0]
+    arr[arr >= threshold] = vals[1]
+    
+    return arr
