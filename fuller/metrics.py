@@ -4,13 +4,14 @@
 from . import utils as u
 import numpy as np
 from numpy import nan_to_num as n2n
-from sklearn.metrics import pairwise_distances as smp
+# from sklearn.metrics import pairwise_distances as smp
 import scipy.spatial.distance as ssd
+import itertools as it
 import inspect
 
 
 def dcos(a, b):
-    """ Cosine distance
+    """ Cosine distance between vectors a and b.
     """
     
     aa, bb = list(map(np.linalg.norm, [a, b]))
@@ -19,23 +20,24 @@ def dcos(a, b):
     return cos
 
 
-def similarity_matrix(a, b, dist='cos', **kwds):
-    """ Calculate the similarity matrix of two lists of objects.
+def similarity_matrix(feature_mat, axis=0, fmetric=dcos, **kwds):
+    """ Calculation of the similarity matrix.
     """
 
-    if dist == 'cos':
-        pass
-    elif dist == 'Euclidean':
-        pass
-    elif dist == 'Minkowski':
-        pass
-    elif inspect.isfunction(dist):
-        # Calculate with custom-defined distance function
-        dist(*[a, b], **kwds)
-    else:
-        raise NotImplementedError
+    if not inspect.isfunction(fmetric):
+        raise ValueError('The specified metric should be a function.')
     
-    return
+    else:
+        fmat = np.moveaxis(feature_mat, axis, 0)
+        nfeat = fmat.shape[0]
+        smat = np.zeros((nfeat, nfeat))
+        ids = list(it.product(range(nfeat), repeat=2))
+        
+        for pair in ids:
+            i, j = pair[0], pair[1]
+            smat[i,j] = fmetric(fmat[i,1:], fmat[j,1:], **kwds)
+            
+        return smat
 
 
 def abserror(result, ref, keys, ofs=None, mask=1, **kwargs):
