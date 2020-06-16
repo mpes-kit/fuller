@@ -466,3 +466,18 @@ def binarize(cfs, threshold, vals=[0, 1], absolute=True):
     arr[arr >= threshold] = vals[1]
     
     return arr
+
+
+def trim_2d_edge(arr, edges):
+    """ Trim 2D edges in the first two dimensions of an nD array.
+    """
+    
+    edges = np.array(edges)
+    
+    if edges.size == 1:
+        eg = edges.item()
+        return arr[eg:-eg,eg:-eg,...]
+    
+    elif edges.size == 4:
+        top, bot, left, rite = edges
+        return arr[top:-bot, left:-rite,...]
