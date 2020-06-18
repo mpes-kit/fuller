@@ -22,13 +22,27 @@ def dcos(a, b):
 
 def similarity_matrix(feature_mat, axis=0, fmetric=dcos, **kwds):
     """ Calculation of the similarity matrix.
+
+    :Parameters:
+        feature_mat : list/tuple/numpy array
+            Feature matrix (2D or higher dimenions).
+        axis : int
+            Axis along which the features are aligned to.
+        fmetric : function | dcos
+            Metric function for calculating the similarity between each pair of features.
+        **kwds : keyword arguments
+            Extra arguments for the metric function.
+
+    :Return:
+        smat : 2D numpy array
+            Calculated similarity matrix.
     """
 
     if not inspect.isfunction(fmetric):
         raise ValueError('The specified metric should be a function.')
     
     else:
-        fmat = np.moveaxis(feature_mat, axis, 0)
+        fmat = np.moveaxis(np.array(feature_mat), axis, 0)
         nfeat = fmat.shape[0]
         smat = np.zeros((nfeat, nfeat))
         ids = list(it.product(range(nfeat), repeat=2))

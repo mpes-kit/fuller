@@ -454,22 +454,60 @@ def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, se
     return cfout
 
 
-def binarize(cfs, threshold, vals=[0, 1], absolute=True):
+def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq='geq'):
     """ Binarize an array by a threshold.
+
+    :Parameters:
+        cfs : list/tuple/numpy array
+            Numerical object.
+        threshold : numeric
+            Numerical threshold for binarization.
+        vals : list/tuple/numpy array
+            Values assigned to the two sides of the threshold.
+        absolute : bool | True
+            Option to use the absolute value for thresholding.
+        eq : str | 'geq'
+            Options to treat the values equal to the threshold (`'leq'` for less or equal,
+            `'geq'` for greater or equal, `None` for drop the threshold-equalling values).
+
+    :Return:
+        arr : list/tuple/numpy array
+            Binarized array.
     """
     
     arr = np.array(cfs)
     if absolute:
         arr = np.abs(arr)
     
-    arr[arr < threshold] = vals[0]
-    arr[arr >= threshold] = vals[1]
+    if eq == 'leq':
+        arr[arr <= threshold] = vals[0]
+        arr[arr > threshold] = vals[1]
+    elif eq == 'geq':
+        arr[arr < threshold] = vals[0]
+        arr[arr >= threshold] = vals[1]
+    elif eq is None:
+        arr[arr < threshold] = vals[0]
+        arr[arr > threshold] = vals[1]
     
     return arr
 
 
 def trim_2d_edge(arr, edges, axes=(0, 1)):
     """ Trim 2D edges in the first two dimensions of an nD array.
+
+    :Parameters:
+        arr : numpy array
+            Array to trim .
+        edges : numeric/list/tuple/numpy array
+            The amount of edges to trim. If a single value is assigned, the two ends of the
+            axes are trimmed equally. If a list of four different values is assigned, they are
+            applied to the two axes in the order `(start_1, end_1, start_2, end_2)`.
+        axes : list/tuple
+            Specified axes/dimensions to trim.
+
+    :Return:
+        trimmed : numpy array
+            Axis-trimmed array.
     """
     
     edges = np.array(edges)
@@ -482,5 +520,7 @@ def trim_2d_edge(arr, edges, axes=(0, 1)):
     elif edges.size == 4:
         top, bot, left, rite = edges
         trimmed = trimmed[top:-bot, left:-rite,...]
+
+    trimmed = np.moveaxis(trimmed, (0, 1), axes)
     
-    return np.moveaxis(trimmed, (0, 1), axes)
+    return trimmed
