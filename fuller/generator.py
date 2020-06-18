@@ -16,7 +16,6 @@ except:
     wn.warn('The package mpes is not install, this could disable certain functionalities of the pacakge.')
 
 
-
 def hexmask(hexdiag=128, imside=256, image=None, padded=False, margins=[], pad_top=None, pad_bottom=None,
             pad_left=None, pad_right=None, vertical=True, outside='nan', ret='mask', **kwargs):
     """ Generate a hexagonal mask. To use the function, either the argument ``imside`` or ``image`` should be
@@ -191,15 +190,15 @@ def projectionfilter(data, nterms=None, bases=None, npix=None, basis_type='Zerni
             bases = ppz.hexike_basis(nterms=nterms, npix=npix, **basis_kwds)
 
     # Decompose into the given basis
-    coeffs = fuller.generator.decomposition_hex2d(data, bases=bases, baxis=0,
+    coeffs = decomposition_hex2d(data, bases=bases, baxis=0,
                     nterms=nterms, basis_type=basis_type, ret='coeffs')
 
     # Reconstruct the smoothed version of the energy band
-    recon = fuller.generator.reconstruction_hex2d(coeffs, bases=bases, baxis=0,
+    recon = reconstruction_hex2d(coeffs, bases=bases, baxis=0,
                     npix=npix, basis_type=basis_type, ret='band')
 
     if outside == 'nan':
-        recon = fuller.utils.to_masked(recon, val=0)
+        recon = u.to_masked(recon, val=0)
         return recon, coeffs
     elif outside == 0:
         return recon, coeffs
