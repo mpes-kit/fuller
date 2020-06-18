@@ -2,20 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import gen_math_ops
-
+# import tensorflow as tf
+# from tensorflow.python.framework import ops
+# from tensorflow.python.ops import gen_math_ops
 from scipy.interpolate import RegularGridInterpolator as RGI
 from tqdm import tqdm_notebook
 from tqdm import tqdm as tqdm_classic
-
 from h5py import File
 from silx.io import dictdump
 import scipy.io as sio
 import natsort as nts
 import glob as g
-
 from itertools import product
 
 
