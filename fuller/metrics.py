@@ -20,6 +20,30 @@ def dcos(a, b):
     return cos
 
 
+def demean(arr, meanax=1, idx=0, **kwds):
+    """ Subtract the mean of an axial direction in an array (2D or higher) from all entries in that direciton.
+
+    :Parameters:
+        arr : list/tuple/numpy array
+            Input array (at least 2D).
+        meanax : int | 1
+            Axis along which to calculate the mean.
+        idx : int | 0
+            Entry index in the axis specified previously.
+        **kwds : keyword arguments
+            Additional arguments for the `numpy.mean()` function.
+    """
+
+    arr = np.array(arr)
+    arrdm = np.moveaxis(arr, meanax, 0) # demeaned array
+    
+    mn = np.mean(arrdm[idx,...], **kwds)
+    arrdm[idx,...] -= mn
+    arrdm = np.moveaxis(arrdm, 0, meanax)
+    
+    return arrdm
+
+
 def similarity_matrix(feature_mat, axis=0, fmetric=dcos, **kwds):
     """ Calculation of the similarity matrix.
 
