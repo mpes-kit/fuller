@@ -1,4 +1,5 @@
-# Electronic band structure reconstruction and parametrization
+# fuller
+Integrated computational framework for electronic band structure reconstruction and parametrization, powered by probabilistic machine learning
 
 ## Introduction
 
