@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Band structure parametrization (fuller.generator) &#8212; fuller 0.9.2 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-fuller.generator">
+<span id="band-structure-parametrization-fuller-generator"></span><h1>Band structure parametrization  <code class="docutils literal notranslate"><span class="pre">(fuller.generator)</span></code><a class="headerlink" href="#module-fuller.generator" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fuller.generator.BrillouinZoner">
+<em class="property">class </em><code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">BrillouinZoner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">bands</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kvals</span><span class="o">=</span><span class="default_value">[[], []]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for truncating the band mapping data to the first Brillouin zone.</p>
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.bandcutter">
+<code class="sig-name descname">bandcutter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ny</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dmean</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">resampled</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.bandcutter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Truncate the band within the first Brillouin zone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>nx, ny<span class="classifier">int, int</span></dt><dd><p>Pixel numbers of the cut band along the image axes.</p>
+</dd>
+<dt>dmean<span class="classifier">bool | False</span></dt><dd><p>Option to subtract the mean from the band structure.</p>
+</dd>
+<dt>resampled<span class="classifier">bool | False</span></dt><dd><p>Option to resample the energy band in another k-grid.</p>
+</dd>
+<dt>ret<span class="classifier">bool | False</span></dt><dd><p>Specifications for return values.</p>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><dl class="field-list simple">
+<dt class="field-odd">margins</dt>
+<dd class="field-odd"><p>list/tuple
+Four-sided margins for the truncated band structure.</p>
+</dd>
+<dt class="field-even">selector</dt>
+<dd class="field-even"><p>list/slice object/None | None
+Selector along the band index axis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.findlandmarks">
+<code class="sig-name descname">findlandmarks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'daofind'</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">'ccw'</span></em>, <em class="sig-param"><span class="n">center_det</span><span class="o">=</span><span class="default_value">'centroidnn'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.findlandmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the landmark locations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>method : str | ‘daofind’
+direction : str | ‘ccw’
+center_det : str | ‘centroidnn’
+ret : bool | False
+<a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs : keyword arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">loadfunc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load band structure data (energy values and momentum axes).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.maskgen">
+<code class="sig-name descname">maskgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.maskgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a mask using given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>See <cite>fuller.generator.hexmask()</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.nbands">
+<em class="property">property </em><code class="sig-name descname">nbands</code><a class="headerlink" href="#fuller.generator.BrillouinZoner.nbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of bands.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.resample">
+<code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kvals</span></em>, <em class="sig-param"><span class="n">band</span></em>, <em class="sig-param"><span class="n">nx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ny</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resample the energy band in a finer grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>See <code class="docutils literal notranslate"><span class="pre">fuller.utils.interpolate2d()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.save_data">
+<code class="sig-name descname">save_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span><span class="o">=</span><span class="default_value">'h5'</span></em>, <em class="sig-param"><span class="n">save_addr</span><span class="o">=</span><span class="default_value">'./bandcuts.h5'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.save_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save truncated band structure data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>form<span class="classifier">str | ‘h5’</span></dt><dd><p>Format of the file to save.</p>
+</dd>
+<dt>save_addr<span class="classifier">str | ‘./bandcuts’</span></dt><dd><p>File-saving address.</p>
+</dd>
+<dt><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>Additional arguments for the file-saving functions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.select_slice">
+<code class="sig-name descname">select_slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selector</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.select_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select the image slice for landmark detection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>selector<span class="classifier">slice object</span></dt><dd><p>A slice object for selection of image stacks for feature detection.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.set_bands">
+<code class="sig-name descname">set_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.set_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the energy bands.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.set_eaxis">
+<code class="sig-name descname">set_eaxis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axis</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.set_eaxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the index of the energy axis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.set_kvals">
+<code class="sig-name descname">set_kvals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kvals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.set_kvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the k values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.set_landmarks">
+<code class="sig-name descname">set_landmarks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">landmarks</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.set_landmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the landmark locations for the image features.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.set_mask">
+<code class="sig-name descname">set_mask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mask</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the mask for the energy band.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rettype</span><span class="o">=</span><span class="default_value">'dict'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container of truncated band structure and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>rettype<span class="classifier">str | ‘dict’</span></dt><dd><p>Data type of the returned summary (<code class="docutils literal notranslate"><span class="pre">'dict'</span></code> or <code class="docutils literal notranslate"><span class="pre">'list'</span></code>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.BrillouinZoner.visualize">
+<code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">4, 4</span></em>, <em class="sig-param"><span class="n">origin</span><span class="o">=</span><span class="default_value">'lower'</span></em>, <em class="sig-param"><span class="n">annotated</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">points</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scatterkws</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.BrillouinZoner.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display (cut) bands.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="fuller.generator.EBandSynthesizer">
+<em class="property">class </em><code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">EBandSynthesizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nbands</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for synthesizing electronic band structure from basis functions.</p>
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.basisgen">
+<code class="sig-name descname">basisgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nterms</span></em>, <em class="sig-param"><span class="n">npix</span></em>, <em class="sig-param"><span class="n">vertical</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.basisgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate polynomial bases for energy band synthesis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.coeffgen">
+<code class="sig-name descname">coeffgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nterms</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'rand_gauss'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.coeffgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate coefficients for energy band synthesis.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.save_bands">
+<code class="sig-name descname">save_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">save_addr</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.save_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the synthesized energy bands.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.set_kvals">
+<code class="sig-name descname">set_kvals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kvals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.set_kvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set momentum values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.set_mask">
+<code class="sig-name descname">set_mask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mask</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the mask for the synthesized data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.set_nbands">
+<code class="sig-name descname">set_nbands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nbands</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.set_nbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of energy bands to synthesize.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.set_spacing">
+<code class="sig-name descname">set_spacing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spacing</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.set_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the energy spacing between energy bands.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rettype</span><span class="o">=</span><span class="default_value">'dict'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container of synthetic band structure and parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.synthesize">
+<code class="sig-name descname">synthesize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate 3D electronic band structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.EBandSynthesizer.visualize">
+<code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selector</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indaxis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'plotly'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.EBandSynthesizer.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot synthesized band structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="fuller.generator.MPESDataGenerator">
+<em class="property">class </em><code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">MPESDataGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands</span></em>, <em class="sig-param"><span class="n">lineshape</span></em>, <em class="sig-param"><span class="n">baxis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for generating three-dimensional photoemssion data.</p>
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.add_bands">
+<code class="sig-name descname">add_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands</span></em>, <em class="sig-param"><span class="n">edir</span><span class="o">=</span><span class="default_value">'lower'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.add_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an energy band the existing list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.generate_data">
+<code class="sig-name descname">generate_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix_elements</span><span class="o">=</span><span class="default_value">'off'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.generate_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate photoemission data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.nbands">
+<em class="property">property </em><code class="sig-name descname">nbands</code><a class="headerlink" href="#fuller.generator.MPESDataGenerator.nbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of bands used in the simulation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#fuller.generator.MPESDataGenerator.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of lineshape parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.save_data">
+<code class="sig-name descname">save_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span><span class="o">=</span><span class="default_value">'h5'</span></em>, <em class="sig-param"><span class="n">save_addr</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">save_items</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.save_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save generated photoemission data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.select_bands">
+<code class="sig-name descname">select_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selector</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.select_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select energy bands by their indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_amplitude">
+<code class="sig-name descname">set_amplitude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">amplitude</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_amplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the amplitude of the lineshape function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_bands">
+<code class="sig-name descname">set_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bands</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the energy band positions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_energy">
+<code class="sig-name descname">set_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energy</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the binding energy of the photoelectrons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_kvals">
+<code class="sig-name descname">set_kvals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kvals</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_kvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the momentum values for the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_lineshape">
+<code class="sig-name descname">set_lineshape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineshape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_lineshape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the lineshape function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_linewidth">
+<code class="sig-name descname">set_linewidth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_linewidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the intrinsic linewidth of electronic state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_matrix_elements">
+<code class="sig-name descname">set_matrix_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matelems</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_matrix_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the matrix element intensity modulation in photoemission process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.set_srfwidth">
+<code class="sig-name descname">set_srfwidth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.set_srfwidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the width of the system response function (SRF).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.generator.MPESDataGenerator.summary">
+<code class="sig-name descname">summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rettype</span><span class="o">=</span><span class="default_value">'dict'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.MPESDataGenerator.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container of synthetic band mapping data and parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.bandstack">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">bandstack</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">baxis</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">nvb</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ncb</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gap_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pbar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pbenv</span><span class="o">=</span><span class="default_value">'classic'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.bandstack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a stack of energy bands after symmetrization.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>data<span class="classifier">3D array</span></dt><dd><p>Patches of band structure data with the axes in any ordering of (kx, ky, band_index).</p>
+</dd>
+<dt>baxis<span class="classifier">int | 2</span></dt><dd><p>Axis of the band index.</p>
+</dd>
+<dt>nvb, ncb<span class="classifier">int, int | None, None</span></dt><dd><p>Number of valence and conduction bands to extract.</p>
+</dd>
+<dt>gap_id<span class="classifier">int | None</span></dt><dd><p>Index number of the topmost valence band or bottommost conduction band,
+depending on the stacking order in the data variable.</p>
+</dd>
+<dt>pbar<span class="classifier">bool | True</span></dt><dd><p>Option to turn on/off the progress bar in computation.</p>
+</dd>
+<dt>pbenv<span class="classifier">str | ‘classic’</span></dt><dd><p>Progress bar environment (‘classic’ or ‘notebook’).</p>
+</dd>
+</dl>
+<p><a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs : keyword arguments</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>vbands, cbands<span class="classifier">3D array, 3D array</span></dt><dd><p>Stacked valence and conduction bands after symmetrization.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.cutedge">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">cutedge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">check_axis</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">boundary</span><span class="o">=</span><span class="default_value">'square'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'cutimage'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.cutedge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cutting out the region beyond the edge of an image.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt>image<span class="classifier">2D array</span></dt><dd><p>Image (containing nan or 0 outside the region of interest) before cutting.</p>
+</dd>
+<dt>check_axis<span class="classifier">int | 1</span></dt><dd><p>The long axis for determining the boundary.</p>
+</dd>
+<dt>boundary<span class="classifier">str | ‘square’</span></dt><dd><dl class="field-list simple">
+<dt class="field-odd">‘square’</dt>
+<dd class="field-odd"><p>Square image boundary.</p>
+</dd>
+<dt class="field-even">‘tight’</dt>
+<dd class="field-even"><p>Tightest rectangular image boundary.</p>
+</dd>
+</dl>
+<p>The shape of the image boundary.</p>
+</dd>
+<dt>ret<span class="classifier">str | ‘cutimage’</span></dt><dd><p>Option to specify return quantity (‘cutimage’, ‘cutrange’, ‘all’).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.decomposition_hex2d">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">decomposition_hex2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band</span></em>, <em class="sig-param"><span class="n">bases</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">baxis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">nterms</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'coeffs'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.decomposition_hex2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose energy band in 3D momentum space using the orthogonal polynomials in a hexagon.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>band<span class="classifier">2D array</span></dt><dd><p>2D electronic band structure.</p>
+</dd>
+<dt>bases<span class="classifier">3D array | None</span></dt><dd><p>Matrix composed of bases to decompose into.</p>
+</dd>
+<dt>baxis<span class="classifier">int | 0</span></dt><dd><p>Axis of the basis index.</p>
+</dd>
+<dt>nterms<span class="classifier">int | 100</span></dt><dd><p>Number of basis terms.</p>
+</dd>
+<dt>basis_type<span class="classifier">str | ‘Zernike’</span></dt><dd><p>Type of basis to use.</p>
+</dd>
+<dt>ret<span class="classifier">str | ‘coeffs’</span></dt><dd><p>Options for the return values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.hexfilter">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">hexfilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">images</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">rotrange</span><span class="o">=</span><span class="default_value">[- 30, - 25, - 20, - 15, - 10, - 5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325]</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">pbar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pbenv</span><span class="o">=</span><span class="default_value">'classic'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.hexfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out sixfold-symmetric images.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>images : 3D array
+center : list/tuple/1D array</p>
+<blockquote>
+<div><p>Image center pixel coordinates.</p>
+</div></blockquote>
+<p>axis : int | 0
+rotrange : list/tuple | list(range(-30, 330, 5))
+lookahead : int | 4
+pbar : bool | True
+pbenv : str | ‘classic’
+ret : str | ‘all’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.hexmask">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">hexmask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hexdiag</span><span class="o">=</span><span class="default_value">128</span></em>, <em class="sig-param"><span class="n">imside</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">image</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">padded</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">margins</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">pad_top</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pad_bottom</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pad_left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pad_right</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vertical</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">'nan'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'mask'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.hexmask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a hexagonal mask. To use the function, either the argument <code class="docutils literal notranslate"><span class="pre">imside</span></code> or <code class="docutils literal notranslate"><span class="pre">image</span></code> should be
+given. The image padding on four sides could be specified with either <code class="docutils literal notranslate"><span class="pre">margins</span></code> altogether or separately
+with the individual arguments <code class="docutils literal notranslate"><span class="pre">pad_xxx</span></code>. For the latter, at least two independent padding values are needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>hexdiag<span class="classifier">int | 128</span></dt><dd><p>Number of pixels along the hexagon’s diagonal.</p>
+</dd>
+<dt>imside<span class="classifier">int | 256</span></dt><dd><p>Number of pixels along the side of the (square) reference image.</p>
+</dd>
+<dt>image<span class="classifier">2D array | None</span></dt><dd><p>2D reference image to construct the mask for. If the reference (image) is given, each side
+of the generated mask is at least that of the smallest dimension of the reference.</p>
+</dd>
+<dt>padded<span class="classifier">bool | False</span></dt><dd><p>Option to pad the image (need to set to True to enable the margins).</p>
+</dd>
+<dt>margins<span class="classifier">list/tuple | []</span></dt><dd><p>Margins of the image [top, bottom, left, right]. Overrides the <cite>pad_xxx</cite> arguments.</p>
+</dd>
+<dt>pad_top, pad_bottom, pad_left, pad_right<span class="classifier">int, int, int, int | None, None, None, None</span></dt><dd><p>Number of padded pixels on each of the four sides of the image.</p>
+</dd>
+<dt>vertical<span class="classifier">bool | True</span></dt><dd><p>Option to align the diagonal of the hexagon with the vertical image axis.</p>
+</dd>
+<dt>outside<span class="classifier">numeric/str | ‘nan’</span></dt><dd><p>Pixel value outside the masked region.</p>
+</dd>
+<dt>ret<span class="classifier">str | ‘mask’</span></dt><dd><p>Return option (‘mask’, ‘masked_image’, ‘all’).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.hexpad">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">hexpad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">cvd</span></em>, <em class="sig-param"><span class="n">edgepad</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.hexpad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetrically pad an image in directions perpendicular to the hexagonal edges.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>img<span class="classifier">2d array</span></dt><dd><p>Image to pad.</p>
+</dd>
+<dt>cvd<span class="classifier">numeric</span></dt><dd><p>Center-vertex distance of the hexagon.</p>
+</dd>
+<dt>edgepad<span class="classifier">list/tuple</span></dt><dd><p>Number of padded pixels on the edge of the image, ((left, right), (top, bottom)).</p>
+</dd>
+</dl>
+<p><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs : keyword arguments</p>
+</dd>
+<dt class="field-even">Return</dt>
+<dd class="field-even"><dl class="simple">
+<dt>padded_view<span class="classifier">2d array</span></dt><dd><p>Rectangular image after padding hexagonally.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.hextiler">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">hextiler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">final_size</span></em>, <em class="sig-param"><span class="n">cvd</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'geometric'</span></em>, <em class="sig-param"><span class="n">op</span><span class="o">=</span><span class="default_value">'nanmax'</span></em>, <em class="sig-param"><span class="n">op_package</span><span class="o">=</span><span class="default_value">'numpy'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'final'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.hextiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tiling the image plane with hexagonal patterns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>image<span class="classifier">2D array</span></dt><dd><p>Base image before hexagonal tiling.</p>
+</dd>
+<dt>final_size<span class="classifier">list/tuple</span></dt><dd><p>Final size of the padded image (row_size, colum_size).</p>
+</dd>
+<dt>cvd<span class="classifier">numeric</span></dt><dd><p>Center-vertex distance.</p>
+</dd>
+<dt>method<span class="classifier">str | ‘geometric’</span></dt><dd><p>Method for hexagonal tiling.</p>
+</dd>
+<dt>op<span class="classifier">str | ‘nanmax’</span></dt><dd><p>Namestring of the operator.</p>
+</dd>
+<dt>op_package<span class="classifier">str | ‘numpy’</span></dt><dd><p>Namestring of the software package to obtain the operator.</p>
+</dd>
+<dt>ret<span class="classifier">str | ‘final’</span></dt><dd><dl class="field-list simple">
+<dt class="field-odd">final</dt>
+<dd class="field-odd"><p>Return only the final result.</p>
+</dd>
+<dt class="field-even">all</dt>
+<dd class="field-even"><p>Return results from all intermediate steps.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.polydecompose">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">polydecompose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span></em>, <em class="sig-param"><span class="n">deg</span></em>, <em class="sig-param"><span class="n">ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'piecewise'</span></em>, <em class="sig-param"><span class="n">polytype</span><span class="o">=</span><span class="default_value">'Legendre'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.polydecompose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose the trace into orthogonal polynomials.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.polyreconstruct">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">polyreconstruct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coeffs</span></em>, <em class="sig-param"><span class="n">ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">polytype</span><span class="o">=</span><span class="default_value">'Legendre'</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.polyreconstruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstruct line segments using provided coefficients.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.projectionfilter">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">projectionfilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">nterms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bases</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">npix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">'nan'</span></em>, <em class="sig-param"><span class="n">basis_kwds</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.projectionfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtering reconstructed band structure using orthogonal polynomial approximation.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>data : 2D array
+nterms : int | None</p>
+<blockquote>
+<div><p>Number of terms.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>bases<span class="classifier">3D array | None</span></dt><dd><p>Bases for decomposition.</p>
+</dd>
+</dl>
+<p>npix : int | None
+basis_type : str | ‘Zernike’
+outside : numeric/str | ‘nan’
+basis_kwds : dictionary | {}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.reconstruction_hex2d">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">reconstruction_hex2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coeffs</span></em>, <em class="sig-param"><span class="n">bases</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">baxis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">npix</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'band'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.reconstruction_hex2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstruction of energy band in 3D momentum space using orthogonal polynomials
+and the term-wise coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>coeffs<span class="classifier">1D array</span></dt><dd><p>Polynomial coefficients to use in reconstruction.</p>
+</dd>
+<dt>bases<span class="classifier">3D array | None</span></dt><dd><p>Matrix composed of bases to decompose into.</p>
+</dd>
+<dt>baxis<span class="classifier">int | 0</span></dt><dd><p>Axis of the basis index.</p>
+</dd>
+<dt>npix<span class="classifier">int | 256</span></dt><dd><p>Number of pixels along one side in the square image.</p>
+</dd>
+<dt>basis_type<span class="classifier">str | ‘Zernike’</span></dt><dd><p>Type of basis to use.</p>
+</dd>
+<dt>ret<span class="classifier">str | ‘band’</span></dt><dd><p>Options for the return values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.reflectodeform">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">reflectodeform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imbase</span></em>, <em class="sig-param"><span class="n">refangle</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">interp_order</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.reflectodeform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reflect the image with respect to the symmetry line across the image center
+using deformation field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>imbase<span class="classifier">2D array</span></dt><dd><p>Base image.</p>
+</dd>
+<dt>refangle<span class="classifier">numeric</span></dt><dd><p>Reflection angle with respect to the image horizontal axis.</p>
+</dd>
+<dt>center<span class="classifier">list/tuple</span></dt><dd><p>Center coordinates of the image.</p>
+</dd>
+<dt>axis<span class="classifier">int | 0</span></dt><dd><p>Axis to reflect along.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.reflectosymmetrize">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">reflectosymmetrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">refangles</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">'nan'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.reflectosymmetrize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetrize the pattern according to reflection symmetry.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.refsym">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">refsym</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">op</span><span class="o">=</span><span class="default_value">'nanmax'</span></em>, <em class="sig-param"><span class="n">op_package</span><span class="o">=</span><span class="default_value">'numpy'</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">pbenv</span><span class="o">=</span><span class="default_value">'classic'</span></em>, <em class="sig-param"><span class="n">pbar</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.refsym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetrize by reflections.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.restore">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">restore</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore an image with irregularly distributed missing values (as nan’s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>img<span class="classifier">nd array</span></dt><dd><p>Multidimensional image array with missing data (as nan’s).</p>
+</dd>
+<dt><a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>Additional arguments supplied to <code class="docutils literal notranslate"><span class="pre">scipy.interpolate.griddata()</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.rotodeform">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">rotodeform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imbase</span></em>, <em class="sig-param"><span class="n">angle</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">interp_order</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.rotodeform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image rotation using deformation field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>imbase<span class="classifier">2D array</span></dt><dd><p>Base image before rotation.</p>
+</dd>
+<dt>angle<span class="classifier">numeric</span></dt><dd><p>Angle of rotation.</p>
+</dd>
+<dt>center<span class="classifier">list/tuple</span></dt><dd><p>Center pixel coordinates of the image.</p>
+</dd>
+<dt><a href="#id13"><span class="problematic" id="id14">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>See additional arguments in <cite>scipy.ndimage.map_coordinates()</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Return</dt>
+<dd class="field-even"><dl class="simple">
+<dt>imshift<span class="classifier">2D array</span></dt><dd><p>Rotated image.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.rotosymdetect">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">rotosymdetect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">rotrange</span><span class="o">=</span><span class="default_value">[- 30, - 25, - 20, - 15, - 10, - 5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 315, 320, 325]</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">pbar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pbenv</span><span class="o">=</span><span class="default_value">'classic'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.rotosymdetect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect the degree of rotational symmetry of an image.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>image : 2D array
+center : list/tuple
+rotrange : list/tuple | list(range(-30, 330, 5))
+lookahead : int | 4
+pbar : bool | True</p>
+<blockquote>
+<div><p>Option to show progress bar.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>pbenv<span class="classifier">str | ‘classic’</span></dt><dd><p>Progress bar environment (‘classic’ or ‘notebook’).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Return</dt>
+<dd class="field-even"><dl class="simple">
+<dt>nmax<span class="classifier">int</span></dt><dd><p>Order of rotational symmetry.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.rotosymmetrize">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">rotosymmetrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">rotsym</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">angles</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">'nan'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.rotosymmetrize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetrize the pattern according to the rotational symmetry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>image<span class="classifier">2D array</span></dt><dd><p>Image to symmetrize.</p>
+</dd>
+<dt>center<span class="classifier">list/tuple</span></dt><dd><p>Image center pixel position (row, column).</p>
+</dd>
+<dt>rotsym<span class="classifier">int | None</span></dt><dd><p>Order of rotation symmetry (if regular symmetry is assumed). If <code class="docutils literal notranslate"><span class="pre">rotsym</span></code>
+is specified, the values from <code class="docutils literal notranslate"><span class="pre">angles</span></code> are ignored.</p>
+</dd>
+<dt>angles<span class="classifier">numeric | None</span></dt><dd><p>Angles of rotation.</p>
+</dd>
+<dt>outside<span class="classifier">str/numeric | ‘nan’</span></dt><dd><p>The values of the symmetrized image outside the masked boundary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fuller.generator.transdeform">
+<code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">transdeform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imbase</span></em>, <em class="sig-param"><span class="n">xtrans</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">ytrans</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">interp_order</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.transdeform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image translation using deformation field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>imbase<span class="classifier">2D array</span></dt><dd><p>Base image before translation.</p>
+</dd>
+<dt>xtrans, ytrans<span class="classifier">numeric, numeric | 0, 0</span></dt><dd><p>Magnitude of translation along the x and y axes.</p>
+</dd>
+<dt><a href="#id15"><span class="problematic" id="id16">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>See additional arguments in <cite>scipy.ndimage.map_coordinates()</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">fuller</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018-2020, Vincent Stimper, R. Patrick Xian.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/generator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
