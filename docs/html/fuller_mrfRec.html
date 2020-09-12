@@ -160,6 +160,272 @@
             
   <div class="section" id="module-fuller.mrfRec">
 <span id="band-structure-reconstruction-fuller-mrfrec"></span><h1>Band structure reconstruction  <code class="docutils literal notranslate"><span class="pre">(fuller.mrfRec)</span></code><a class="headerlink" href="#module-fuller.mrfRec" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fuller.mrfRec.MrfRec">
+<em class="property">class </em><code class="sig-prename descclassname">fuller.mrfRec.</code><code class="sig-name descname">MrfRec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">E</span></em>, <em class="sig-param"><span class="n">kx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ky</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">I</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">E0</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eta</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">includeCurv</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">etaCurv</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for reconstructing band structure from band mapping data.</p>
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec._MrfRec__initSquMat">
+<code class="sig-name descname">_MrfRec__initSquMat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">el</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec._MrfRec__initSquMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns as square matrix of size nxn with el as element in each element.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>n: int</dt><dd><p>Size of the square matrix.</p>
+</dd>
+<dt>el: numeric | None</dt><dd><p>Values of each element.</p>
+</dd>
+</dl>
+<p><strong>Return</strong></p>
+<blockquote>
+<div><p>Square matrix of size nxn with el as element in each element.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.delHist">
+<code class="sig-name descname">delHist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.delHist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the training history by resetting delta log(p) to its initial value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.fromFile">
+<em class="property">classmethod </em><code class="sig-name descname">fromFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em>, <em class="sig-param"><span class="n">E0</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eta</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.fromFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize reconstruction object from h5 file, returns econstruction object initialized from h5 file.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>fileName: str</dt><dd><p>Path to the file as string</p>
+</dd>
+<dt>E0: numeric | None</dt><dd><p>Initial guess for band structure energy values, if None mean of E is taken.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.getEb">
+<code class="sig-name descname">getEb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.getEb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the energy values of the reconstructed band.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.getLogP">
+<code class="sig-name descname">getLogP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.getLogP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the log likelihood of the electronic band structure given the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.initializeBand">
+<code class="sig-name descname">initializeBand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kx</span></em>, <em class="sig-param"><span class="n">ky</span></em>, <em class="sig-param"><span class="n">Eb</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">flipKAxes</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">kScale</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">interp_method</span><span class="o">=</span><span class="default_value">'linear'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.initializeBand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set E0 according to reference band, e.g. DFT calculation.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>kx, ky: 1D array, 1D array</dt><dd><p>Momentum values for data along x and y directions.</p>
+</dd>
+<dt>Eb: 1D array</dt><dd><p>Energy values for band mapping data.</p>
+</dd>
+<dt>offset: numeric | 0.</dt><dd><p>Offset to be added to reference energy values.</p>
+</dd>
+<dt>flipKAxes: bool | False</dt><dd><p>Flag, if true the momentum axes of the references are interchanged.</p>
+</dd>
+<dt>kxScale: numeric | 1.</dt><dd><p>Scaling factor applied to k axes of reference band (after flipping if done).</p>
+</dd>
+<dt>interp_method: str | ‘linear’</dt><dd><p>Method used to interpolate reference band on grid of measured data, ‘linear’ and ‘nearest’ are possible choices. Details see <code class="docutils literal notranslate"><span class="pre">scipy.interpolate.RegularGridInterpolator()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.iter_para">
+<code class="sig-name descname">iter_para</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_epoch</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">updateLogP</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_gpu</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">disable_tqdm</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">graph_reset</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.iter_para" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>num_epoch: int | 1</dt><dd><p>Number of iteration epochs.</p>
+</dd>
+<dt>updateLogP: bool | False</dt><dd><p>Flag, if true logP is updated every half epoch</p>
+</dd>
+<dt>use_gpu: bool | True</dt><dd><p>Flag, if true gpu is used for computations if available</p>
+</dd>
+<dt>disable_tqdm: bool | False</dt><dd><p>Flag, it true no progress bar is shown during optimization</p>
+</dd>
+<dt>graph_reset: bool | True</dt><dd><p>Flag, if true Tensorflow graph is reset after computation to reduce memory demand</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.iter_para_curv">
+<code class="sig-name descname">iter_para_curv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_epoch</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">updateLogP</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_gpu</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">disable_tqdm</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">graph_reset</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.iter_para_curv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>num_epoch:</dt><dd><p>Number of iteration epochs.</p>
+</dd>
+<dt>updateLogP:</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
+</dd>
+<dt>use_gpu:</dt><dd><p>Flag, if true gpu is used for computations if available.</p>
+</dd>
+<dt>disable_tqdm:</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.iter_seq">
+<code class="sig-name descname">iter_seq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_epoch</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">updateLogP</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">disable_tqdm</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.iter_seq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate band structure reconstruction process.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>num:</dt><dd><p>Number of iterations.</p>
+</dd>
+<dt>updateLogP:</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
+</dd>
+<dt>disable_tqdm:</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.loadBand">
+<code class="sig-name descname">loadBand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Eb</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fileName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_as_init</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.loadBand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load bands in reconstruction object, either using numpy matrix or directly from file.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>Eb: numpy array | None</dt><dd><p>Energy values of an electronic band.</p>
+</dd>
+<dt>fileName: str | None</dt><dd><p>Name of h5 file containing band.</p>
+</dd>
+<dt>use_as_init: bool | True</dt><dd><p>Flag, if true loaded band is used as initialization of the object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.loadBandsMat">
+<em class="property">classmethod </em><code class="sig-name descname">loadBandsMat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.loadBandsMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load bands from mat file in numpy matrix.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>path: str</dt><dd><p>Path to the mat file.</p>
+</dd>
+</dl>
+<p><strong>Return</strong></p>
+<blockquote>
+<div><p>Tuple of momentum vectors and energy grid.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.normalizeI">
+<code class="sig-name descname">normalizeI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kernel_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">128</span></em>, <em class="sig-param"><span class="n">clip_limit</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">use_gpu</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">1e-06</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.normalizeI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the intensity using multidimensional CLAHE (MCLAHE).</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>kernel_size: list/tuple | None</dt><dd><p>Tuple of kernel sizes, 1/8 of dimension lengths of x if None.</p>
+</dd>
+<dt>n_bins: int | 128</dt><dd><p>Number of bins to be used in the histogram.</p>
+</dd>
+<dt>clip_limit: numeric | 0.01</dt><dd><p>Relative intensity limit to be ignored in the histogram equalization.</p>
+</dd>
+<dt>use_gpu: bool | True</dt><dd><p>Flag, if true gpu is used for computations if available.</p>
+</dd>
+<dt>threshold: numeric | 1e-6</dt><dd><p>Threshold below which intensity values are set to zero.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.plotBands">
+<code class="sig-name descname">plotBands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">surfPlot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cmapName</span><span class="o">=</span><span class="default_value">'viridis'</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">[9, 9]</span></em>, <em class="sig-param"><span class="n">equal_axes</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.plotBands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot reconstructed electronic band structure.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>surfPlot: bool | False</dt><dd><p>Flag, if true a surface plot is shown in addition.</p>
+</dd>
+<dt>cmapName: str | ‘viridis’</dt><dd><p>Name of the colormap.</p>
+</dd>
+<dt>figsize: list/tuple | [9, 9]</dt><dd><p>Size of the figure produced.</p>
+</dd>
+<dt>equal_axes: bool | False</dt><dd><p>Option to apply the same scaling for both axes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.plotI">
+<code class="sig-name descname">plotI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ky</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">E</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cmapName</span><span class="o">=</span><span class="default_value">'viridis'</span></em>, <em class="sig-param"><span class="n">plotBand</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plotBandInit</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">bandColor</span><span class="o">=</span><span class="default_value">'r'</span></em>, <em class="sig-param"><span class="n">initColor</span><span class="o">=</span><span class="default_value">'k'</span></em>, <em class="sig-param"><span class="n">plotSliceInBand</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">[9, 9]</span></em>, <em class="sig-param"><span class="n">equal_axes</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.plotI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the intensity against k and E.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>kx, ky: </dt><dd><p>kx, ky to plot respective slice.</p>
+</dd>
+<dt>E: </dt><dd><p>E to plot respective slice.</p>
+</dd>
+<dt>plotBand: </dt><dd><p>Flag, if true current electronic band is plotted in image.</p>
+</dd>
+<dt>plotBandInit: </dt><dd><p>Flag, if true E0 is plotted in image.</p>
+</dd>
+<dt>bandColor: </dt><dd><p>Color string for band for matplotlib.pyplot function.</p>
+</dd>
+<dt>initColor: </dt><dd><p>Color string for initial band for matplotlib.pyplot function.</p>
+</dd>
+<dt>plotSliceInBand: </dt><dd><p>Flag, if true plots band as colormesh and corresponding slice in red.</p>
+</dd>
+<dt>figsize:</dt><dd><p>size of the figure produced.</p>
+</dd>
+<dt>equal_axes:</dt><dd><p>use same scaling for both axes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.plotLoss">
+<code class="sig-name descname">plotLoss</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.plotLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the change of the negative log likelihood.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.saveBand">
+<code class="sig-name descname">saveBand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em>, <em class="sig-param"><span class="n">hyperparams</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.saveBand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the reconstructed electronic band and associated optimization paramters to file.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>fileName: str</dt><dd><p>Name of the file to save data to.</p>
+</dd>
+<dt>hyperparams: bool | True</dt><dd><p>Option to save hyperparameters.</p>
+</dd>
+<dt>index: int | None</dt><dd><p>Energy band index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.smoothenI">
+<code class="sig-name descname">smoothenI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0, 1.0, 1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.smoothenI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a multidimensional Gaussian filter to the band mapping data (intensity values).</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>sigma: list/tuple | (1, 1, 1)</dt><dd><p>The vector containing the Gaussian filter standard deviations in pixel space for kx, ky, and E.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fuller.mrfRec.MrfRec.symmetrizeI">
+<code class="sig-name descname">symmetrizeI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mirror</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rotational</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">rotational_order</span><span class="o">=</span><span class="default_value">6</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.mrfRec.MrfRec.symmetrizeI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetrize I with respect to reflection along x and y axis.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>mirror: bool | True</dt><dd><p>Flag, if True mirror symmetrization is done wrt planes perpendicular to kx and ky axis.</p>
+</dd>
+<dt>rotational: bool | True</dt><dd><p>Flag, if True rotational symmetrization is done along axis at kx = ky = 0.</p>
+</dd>
+<dt>rotational_order: int | 6</dt><dd><p>Order of the rotational symmetry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

@@ -12,20 +12,31 @@ from tqdm import tqdm
 import warnings as wn
 
 
-# Reconstruction object
-class MrfRec:
+class MrfRec(object):
+    """ Class for reconstructing band structure from band mapping data.
+    """
 
     def __init__(self, E, kx=None, ky=None, I=None, E0=None, eta=0.1, includeCurv=False, etaCurv=0.1):
-        """
-        Initialize object
-        :param E: Energy as numpy array
-        :param kx: Momentum along x axis as numpy array
-        :param ky: Momentum along y axis as numpy array
-        :param I: Measured intensity wrt momentum (rows) and energy (columns), generated if None
-        :param E0: Initial guess for band structure energy values, if None mean of E is taken
-        :param eta: Standard deviation of neighbor interaction term
-        :param includeCurv: flag, if true curvature term is included during optimization
-        :param etaCurv: Standard deviation of curvature term
+        """ Initialize the class.
+
+        **Parameters**
+
+        E: 1D array | None
+            Energy as numpy array.
+        kx: 1D array | None
+            Momentum along x axis as numpy array.
+        ky: 1D array | None
+            Momentum along y axis as numpy array.
+        I: 3D array | None
+            Measured intensity wrt momentum (rows) and energy (columns), generated if None.
+        E0: numeric | None
+            Initial guess for band structure energy values, if None mean of E is taken.
+        eta: numeric | 0.1 
+            Standard deviation of neighbor interaction term
+        includeCurv: bool | False
+            Flag, if true curvature term is included during optimization.
+        etaCurv: numeric | 0.1
+            Standard deviation of curvature term.
         """
 
         # Check input
@@ -75,10 +86,14 @@ class MrfRec:
 
     @classmethod
     def fromFile(cls, fileName, E0=None, eta=0.1):
-        """
-        Initialize reconstruction object from h5 file
-        :param fileName: Path to the file as string
-        :return: Reconstruction object initialized from h4 file
+        """ Initialize reconstruction object from h5 file, returns econstruction object initialized from h5 file.
+        
+        **Parameters**
+        
+        fileName: str
+            Path to the file as string
+        E0: numeric | None
+            Initial guess for band structure energy values, if None mean of E is taken.
         """
 
         # Read data from file
@@ -101,10 +116,16 @@ class MrfRec:
 
     @classmethod
     def loadBandsMat(cls, path):
-        """
-        Load bands from mat file in numpy matrix
-        :param path: path to mat file
-        :return: tuple of momentum vectors and energy grid
+        """ Load bands from mat file in numpy matrix.
+        
+        **Parameters**
+
+        path: str
+            Path to the mat file.
+        
+        **Return**
+
+            Tuple of momentum vectors and energy grid.
         """
 
         # Import data
@@ -123,15 +144,22 @@ class MrfRec:
 
 
     def initializeBand(self, kx, ky, Eb, offset=0., flipKAxes=False, kScale=1., interp_method='linear'):
-        """
-        Set E0 according to reference band, e.g. DFT calculation
-        :param kx: momentum vector of reference
-        :param ky: momentum vector of reference
-        :param Eb: band energy value grid of reference
-        :param offset: offset to be added to reference energy values
-        :param flipKAxes: flag, if true the momentum axes of the references are interchanged
-        :param kxScale: scaling factor applied to k axes of reference band (after flipping if done)
-        :param interp_method: method used to interpolate reference band on grid of measured data, 'linear' and 'nearest' are possible
+        """ Set E0 according to reference band, e.g. DFT calculation.
+
+        **Parameters**
+
+        kx, ky: 1D array, 1D array
+            Momentum values for data along x and y directions.
+        Eb: 1D array
+            Energy values for band mapping data.
+        offset: numeric | 0.
+            Offset to be added to reference energy values.
+        flipKAxes: bool | False
+            Flag, if true the momentum axes of the references are interchanged.
+        kxScale: numeric | 1.
+            Scaling factor applied to k axes of reference band (after flipping if done).
+        interp_method: str | 'linear'
+            Method used to interpolate reference band on grid of measured data, 'linear' and 'nearest' are possible choices. Details see ``scipy.interpolate.RegularGridInterpolator()``.
         """
 
         # Detach data from input vars
@@ -172,9 +200,12 @@ class MrfRec:
 
 
     def smoothenI(self, sigma=(1., 1., 1.)):
-        """
-        Apply a Gaussian filter to the intensity
-        :param sigma: vector containing the Gaussian filter standard deviations in pixel space for kx, ky, and E
+        """ Apply a multidimensional Gaussian filter to the band mapping data (intensity values).
+        
+        **Parameters**
+
+        sigma: list/tuple | (1, 1, 1)
+            The vector containing the Gaussian filter standard deviations in pixel space for kx, ky, and E.
         """
 
         self.I = ndimage.gaussian_filter(self.I, sigma=sigma)
@@ -184,13 +215,20 @@ class MrfRec:
 
 
     def normalizeI(self, kernel_size=None, n_bins=128, clip_limit=0.01, use_gpu=True, threshold=1e-6):
-        """
-        Normalizes the intensity using clahe
-        :param kernel_size: tuple of kernel sizes, 1/8 of dimension lengths of x if None
-        :param n_bins: number of bins to be used in the histogram
-        :param clip_limit: relative intensity limit to be ignored in the histogram equalization
-        :param use_gpu: Flag, if true gpu is used for computations if available
-        :param threshold: threshold below which intensity values are set to zero
+        """ Normalizes the intensity using multidimensional CLAHE (MCLAHE).
+
+        **Parameters**
+
+        kernel_size: list/tuple | None
+            Tuple of kernel sizes, 1/8 of dimension lengths of x if None.
+        n_bins: int | 128
+            Number of bins to be used in the histogram.
+        clip_limit: numeric | 0.01
+            Relative intensity limit to be ignored in the histogram equalization.
+        use_gpu: bool | True
+            Flag, if true gpu is used for computations if available.
+        threshold: numeric | 1e-6
+            Threshold below which intensity values are set to zero.
         """
 
         I_dtype = self.I.dtype
@@ -214,11 +252,16 @@ class MrfRec:
 
 
     def symmetrizeI(self, mirror=True, rotational=True, rotational_order=6):
-        """
-        Symmetrize I with respect to reflection along x and y axis
-        :param mirror: flag, if True mirror symmetrization is done wrt planes perpendicular to kx and ky axis
-        :param rotational: flag, if True rotational symmetrization is done along axis at kx = ky = 0
-        :param rotational_order: order of the rotational symmetrization
+        """ Symmetrize I with respect to reflection along x and y axis.
+
+        **Parameters**
+
+        mirror: bool | True
+            Flag, if True mirror symmetrization is done wrt planes perpendicular to kx and ky axis.
+        rotational: bool | True
+            Flag, if True rotational symmetrization is done along axis at kx = ky = 0.
+        rotational_order: int | 6
+            Order of the rotational symmetry.
         """
 
         # Mirror symmetrization
@@ -245,12 +288,22 @@ class MrfRec:
         self.delHist()
 
 
+    def generateI(self):
+
+        pass
+
+
     def iter_seq(self, num_epoch=1, updateLogP=False, disable_tqdm=False):
-        """
-        Iterate band structure reconstruction process
-        :param num: Number of iterations
-        :param updateLogP: Flag, if true logP is updated every half epoch
-        :param disable_tqdm: flag, it true no progress bar is shown during optimization
+        """ Iterate band structure reconstruction process.
+
+        **Parameters**
+
+        num:
+            Number of iterations.
+        updateLogP:
+            Flag, if true logP is updated every half epoch.
+        disable_tqdm:
+            Flag, it true no progress bar is shown during optimization.
         """
 
         # Prepare parameter for iteration
@@ -299,13 +352,20 @@ class MrfRec:
 
 
     def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
-        """
-        Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow
-        :param num_epoch: Number of iteration epochs
-        :param updateLogP: Flag, if true logP is updated every half epoch
-        :param use_gpu: Flag, if true gpu is used for computations if available
-        :param disable_tqdm: Flag, it true no progress bar is shown during optimization
-        :param graph_reset: Flag, if true Tensorflow graph is reset after computation to reduce memory demand
+        """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
+
+        **Parameters**
+
+        num_epoch: int | 1
+            Number of iteration epochs.
+        updateLogP: bool | False
+            Flag, if true logP is updated every half epoch
+        use_gpu: bool | True
+            Flag, if true gpu is used for computations if available
+        disable_tqdm: bool | False
+            Flag, it true no progress bar is shown during optimization
+        graph_reset: bool | True
+            Flag, if true Tensorflow graph is reset after computation to reduce memory demand
         """
 
         # Preprocessing
@@ -369,12 +429,18 @@ class MrfRec:
 
 
     def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
-        """
-        Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow
-        :param num_epoch: Number of iteration epochs
-        :param updateLogP: Flag, if true logP is updated every half epoch
-        :param use_gpu: Flag, if true gpu is used for computations if available
-        :param disable_tqdm: flag, it true no progress bar is shown during optimization
+        """ Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
+
+        **Parameters**
+
+        num_epoch:
+            Number of iteration epochs.
+        updateLogP:
+            Flag, if true logP is updated every half epoch.
+        use_gpu:
+            Flag, if true gpu is used for computations if available.
+        disable_tqdm:
+            Flag, it true no progress bar is shown during optimization.
         """
 
         if not self.includeCurv:
@@ -482,18 +548,14 @@ class MrfRec:
 
 
     def getEb(self):
-        """
-        Get energy values of the electronic band
-        :return: energy values of the electronic band
+        """ Retrieve the energy values of the reconstructed band.
         """
 
         return self.E[self.indEb].copy()
 
 
     def getLogP(self):
-        """
-        Get the log likelihood of the electronic band structure given the model
-        :return: log(p)
+        """ Retrieve the log likelihood of the electronic band structure given the model.
         """
 
         # Likelihood terms
@@ -509,20 +571,29 @@ class MrfRec:
         return logP
 
 
-    def plotI(self, kx=None, ky=None, E=None, cmapName='viridis', plotBand=False, plotBandInit=False, bandColor='r',
-              initColor='k', plotSliceInBand=False, figsize=[9, 9], equal_axes=False):
-        """
-        Plot the intensity against k and E
-        :param kx: kx to plot respective slice
-        :param ky: ky to plot respective slice
-        :param E: E to plot respective slice
-        :param plotBand: flag, if true current electronic band is plotted in image
-        :param plotBandInit: flag, if true E0 is plotted in image
-        :param bandColor: color string for band for matplotlib.pyplot function
-        :param initColor: color string for initial band for matplotlib.pyplot function
-        :param plotSliceInBand: flag, if true plots band as colormesh and corresponding slice in red
-        :param figsize: size of the figure produced
-        :param equal_axes: use same scaling for both axes
+    def plotI(self, kx=None, ky=None, E=None, cmapName='viridis', plotBand=False, plotBandInit=False, bandColor='r', initColor='k', plotSliceInBand=False, figsize=[9, 9], equal_axes=False):
+        """ Plot the intensity against k and E.
+
+        **Parameters**
+
+        kx, ky: 
+            kx, ky to plot respective slice.
+        E: 
+            E to plot respective slice.
+        plotBand: 
+            Flag, if true current electronic band is plotted in image.
+        plotBandInit: 
+            Flag, if true E0 is plotted in image.
+        bandColor: 
+            Color string for band for matplotlib.pyplot function.
+        initColor: 
+            Color string for initial band for matplotlib.pyplot function.
+        plotSliceInBand: 
+            Flag, if true plots band as colormesh and corresponding slice in red.
+        figsize:
+            size of the figure produced.
+        equal_axes:
+            use same scaling for both axes.
         """
 
         # Prepare data to plot
@@ -599,12 +670,18 @@ class MrfRec:
 
 
     def plotBands(self, surfPlot=False, cmapName='viridis', figsize=[9, 9], equal_axes=False):
-        """
-        Plot reconstructed electronic band structure
-        :param surfPlot: flag, if true a surface plot is shown in addition
-        :param groundTruth: Flag whether to plot true band from which data got generated
-        :param figsize: size of the figure produced
-        :param equal_axes: use same scaling for both axes
+        """ Plot reconstructed electronic band structure.
+
+        **Parameters**
+
+        surfPlot: bool | False
+            Flag, if true a surface plot is shown in addition.
+        cmapName: str | 'viridis'
+            Name of the colormap.
+        figsize: list/tuple | [9, 9]
+            Size of the figure produced.
+        equal_axes: bool | False
+            Option to apply the same scaling for both axes.
         """
 
         x, y = np.meshgrid(self.kx, self.ky, indexing='ij')
@@ -640,8 +717,7 @@ class MrfRec:
 
 
     def plotLoss(self):
-        """
-        Plot the change of the negative log likelihood
+        """ Plot the change of the negative log likelihood.
         """
 
         epoch = np.linspace(0, self.epochsDone, len(self.logP), endpoint=True)
@@ -656,8 +732,7 @@ class MrfRec:
 
 
     def delHist(self):
-        """
-        Deletes the training history by resetting delta log(p) to its initial value
+        """ Deletes the training history by resetting delta log(p) to its initial value.
         """
 
         self.logP = np.array([self.getLogP()])
@@ -665,11 +740,16 @@ class MrfRec:
 
 
     def saveBand(self, fileName, hyperparams=True, index=None):
-        """
-        Save the reconstructed electronic band and associated optimization paramters to file.
-        :param fileName: Name of the file to save data to.
-        :param hyperparams: Option to save hyperparameters.
-        :param index: Energy band index.
+        """ Save the reconstructed electronic band and associated optimization paramters to file.
+
+        **Parameters**
+
+        fileName: str
+            Name of the file to save data to.
+        hyperparams: bool | True
+            Option to save hyperparameters.
+        index: int | None
+            Energy band index.
         """
 
         with h5py.File(fileName, 'w') as file:
@@ -690,11 +770,16 @@ class MrfRec:
 
 
     def loadBand(self, Eb=None, fileName=None, use_as_init=True):
-        """
-        Load bands in reconstruction object, either using numpy matrix or directly from file
-        :param Eb: numpy matrix of band
-        :param fileName: Name of h5 file containing band
-        :param use_as_init: flag, if true loaded band is used as initialization of the object
+        """ Load bands in reconstruction object, either using numpy matrix or directly from file.
+
+        **Parameters**
+
+        Eb: numpy array | None
+            Energy values of an electronic band.
+        fileName: str | None
+            Name of h5 file containing band.
+        use_as_init: bool | True
+            Flag, if true loaded band is used as initialization of the object
         """
 
         if fileName is not None:
@@ -717,11 +802,18 @@ class MrfRec:
 
 
     def __initSquMat(self, n, el=None):
-        """
-        Returns as square matrix of size nxn with el as element in each element
-        :param size: size of square matrix
-        :param el: values of each element
-        :return: square matrix of size nxn with el as element in each element
+        """ Returns as square matrix of size nxn with el as element in each element.
+
+        **Parameters**
+
+        n: int
+            Size of the square matrix.
+        el: numeric | None
+            Values of each element.
+        
+        **Return**
+        
+            Square matrix of size nxn with el as element in each element.
         """
 
         return [[el for _ in range(n)] for _ in range(n)]
