@@ -163,27 +163,23 @@
 <dt id="fuller.utils.binarize">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">binarize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfs</span></em>, <em class="sig-param"><span class="n">threshold</span></em>, <em class="sig-param"><span class="n">vals</span><span class="o">=</span><span class="default_value">[0, 1]</span></em>, <em class="sig-param"><span class="n">absolute</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">eq</span><span class="o">=</span><span class="default_value">'geq'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.binarize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binarize an array by a threshold.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>cfs<span class="classifier">list/tuple/numpy array</span></dt><dd><p>Numerical object.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>cfs: list/tuple/numpy array</dt><dd><p>Numerical object.</p>
 </dd>
-<dt>threshold<span class="classifier">numeric</span></dt><dd><p>Numerical threshold for binarization.</p>
+<dt>threshold: numeric</dt><dd><p>Numerical threshold for binarization.</p>
 </dd>
-<dt>vals<span class="classifier">list/tuple/numpy array</span></dt><dd><p>Values assigned to the two sides of the threshold.</p>
+<dt>vals: list/tuple/numpy array</dt><dd><p>Values assigned to the two sides of the threshold.</p>
 </dd>
-<dt>absolute<span class="classifier">bool | True</span></dt><dd><p>Option to use the absolute value for thresholding.</p>
+<dt>absolute: bool | True</dt><dd><p>Option to use the absolute value for thresholding.</p>
 </dd>
-<dt>eq<span class="classifier">str | ‘geq’</span></dt><dd><p>Options to treat the values equal to the threshold (<cite>‘leq’</cite> for less or equal,
+<dt>eq: str | ‘geq’</dt><dd><p>Options to treat the values equal to the threshold (<cite>‘leq’</cite> for less or equal,
 <cite>‘geq’</cite> for greater or equal, <cite>None</cite> for drop the threshold-equalling values).</p>
 </dd>
 </dl>
-</dd>
-<dt class="field-even">Return</dt>
-<dd class="field-even"><dl class="simple">
-<dt>arr<span class="classifier">list/tuple/numpy array</span></dt><dd><p>Binarized array.</p>
-</dd>
-</dl>
+<p><strong>Return</strong></p>
+<dl class="simple">
+<dt>arr: list/tuple/numpy array</dt><dd><p>Binarized array.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -192,24 +188,21 @@
 <dt id="fuller.utils.coeffgen">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">coeffgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">amp</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">distribution</span><span class="o">=</span><span class="default_value">'uniform'</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modulation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.coeffgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate random sequence from a distribution modulated by an envelope function and a mask.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>size<span class="classifier">list/tuple</span></dt><dd><p>Size of the coefficient array.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>size: list/tuple</dt><dd><p>Size of the coefficient array.</p>
 </dd>
-<dt>amp<span class="classifier">numeric | 1</span></dt><dd><p>Global amplitude scaling of the random sequence.</p>
+<dt>amp: numeric | 1</dt><dd><p>Global amplitude scaling of the random sequence.</p>
 </dd>
-<dt>distribution<span class="classifier">str | ‘uniform’</span></dt><dd><p>Type of distribution to draw from.</p>
+<dt>distribution: str | ‘uniform’</dt><dd><p>Type of distribution to draw from.</p>
 </dd>
-<dt>mask<span class="classifier">ndarray | None</span></dt><dd><p>Amplitude mask array.</p>
+<dt>mask: ndarray | None</dt><dd><p>Amplitude mask array.</p>
 </dd>
-<dt>modulation<span class="classifier">ndarray/str | None</span></dt><dd><p>Amplitude modulation array.</p>
+<dt>modulation: ndarray/str | None</dt><dd><p>Amplitude modulation array.</p>
 </dd>
-<dt>seed<span class="classifier">numeric | None:</span></dt><dd><p>Seed value for the random number generator.</p>
+<dt>seed: numeric | None:</dt><dd><p>Seed value for the random number generator.</p>
 </dd>
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>Additional arguments for the distribution function.</p>
-</dd>
-</dl>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: keyword arguments</dt><dd><p>Additional arguments for the specified distribution function.s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -230,16 +223,15 @@
 <dt id="fuller.utils.findFiles">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">findFiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fdir</span></em>, <em class="sig-param"><span class="n">fstring</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">ftype</span><span class="o">=</span><span class="default_value">'h5'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.findFiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve files named in a similar way from a folder.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>fdir<span class="classifier">str</span></dt><dd><p>Folder name where the files are stored.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>fdir: str</dt><dd><p>Folder name where the files are stored.</p>
 </dd>
-<dt>fstring<span class="classifier">str | ‘’</span></dt><dd><p>Extra string in the filename.</p>
+<dt>fstring: str | ‘’</dt><dd><p>Extra string in the filename.</p>
 </dd>
-<dt>ftype<span class="classifier">str | ‘h5’</span></dt><dd><p>The type of files to retrieve.</p>
+<dt>ftype: str | ‘h5’</dt><dd><p>The type of files to retrieve.</p>
 </dd>
-<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwds<span class="classifier">keyword arguments</span></dt><dd><p>Extra keywords for <cite>natsorted()</cite>.</p>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwds: keyword arguments</dt><dd><p>Extra keywords for <cite>natsorted()</cite>.</p>
 </dd>
 </dl>
 </dd>
@@ -250,19 +242,20 @@
 <dt id="fuller.utils.interpolate2d">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">interpolate2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oldx</span></em>, <em class="sig-param"><span class="n">oldy</span></em>, <em class="sig-param"><span class="n">vals</span></em>, <em class="sig-param"><span class="n">nx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ny</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ret</span><span class="o">=</span><span class="default_value">'interpolant'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.interpolate2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interpolate values in a newer and/or finer grid.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>oldx, oldy<span class="classifier">1D array, 1D array</span></dt><dd><p>Values of the old x and y axes.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>oldx, oldy: 1D array, 1D array</dt><dd><p>Values of the old x and y axes.</p>
 </dd>
-<dt>vals<span class="classifier">2D array</span></dt><dd><p>Image pixel values associated with the old x and y axes.</p>
+<dt>vals: 2D array</dt><dd><p>Image pixel values associated with the old x and y axes.</p>
 </dd>
-<dt>nx, ny<span class="classifier">int, int | None, None</span></dt><dd><p>Number of elements in the interpolated axes.</p>
+<dt>nx, ny: int, int | None, None</dt><dd><p>Number of elements in the interpolated axes.</p>
 </dd>
-<dt>ret<span class="classifier">str | ‘interpolant’</span></dt><dd><p>Specification of the return parts.</p>
+<dt>ret: str | ‘interpolant’</dt><dd><p>Specification of the return parts.</p>
+</dd>
+<dt><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs: keyword arguments</dt><dd><dl class="simple">
+<dt>newx, newy: 1D array, 1D array</dt><dd><p>Axes’ values after interpolation.</p>
 </dd>
 </dl>
-<p><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs : keyword arguments</p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,18 +264,15 @@
 <dt id="fuller.utils.loadH5Parts">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">loadH5Parts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">content</span></em>, <em class="sig-param"><span class="n">outtype</span><span class="o">=</span><span class="default_value">'dict'</span></em>, <em class="sig-param"><span class="n">alias</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.loadH5Parts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load specified content from a single complex HDF5 file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>filename<span class="classifier">str</span></dt><dd><p>Namestring of the file.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>filename: str</dt><dd><p>Namestring of the file.</p>
 </dd>
-<dt>content<span class="classifier">list/tuple</span></dt><dd><p>Collection of names for the content to retrieve.</p>
+<dt>content: list/tuple</dt><dd><p>Collection of names for the content to retrieve.</p>
 </dd>
-<dt>outtype<span class="classifier">str | ‘dict’</span></dt><dd><p>Option to specify the format of output (‘dict’, ‘list’, ‘vals’).</p>
+<dt>outtype: str | ‘dict’</dt><dd><p>Option to specify the format of output (‘dict’, ‘list’, ‘vals’).</p>
 </dd>
-<dt>alias<span class="classifier">list/tuple | None</span></dt><dd><p>Collection of aliases to assign to each entry in content in the output dictionary.</p>
-</dd>
-</dl>
+<dt>alias: list/tuple | None</dt><dd><p>Collection of aliases to assign to each entry in content in the output dictionary.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -291,26 +281,22 @@
 <dt id="fuller.utils.loadHDF">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">loadHDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_addr</span></em>, <em class="sig-param"><span class="n">hierarchy</span><span class="o">=</span><span class="default_value">'flat'</span></em>, <em class="sig-param"><span class="n">groups</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="n">track_order</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtyp</span><span class="o">=</span><span class="default_value">'float'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.loadHDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load contents in an HDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>load_addr<span class="classifier">str</span></dt><dd><p>Address of the file to load.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>load_addr: str</dt><dd><p>Address of the file to load.</p>
 </dd>
-<dt>hierarchy<span class="classifier">str | ‘flat’</span></dt><dd><p>Hierarchy of the file structure to load into.</p>
+<dt>hierarchy: str | ‘flat’</dt><dd><p>Hierarchy of the file structure to load into.</p>
 </dd>
-<dt>groups<span class="classifier">list/tuple/str</span></dt><dd><p>Name of the groups.</p>
+<dt>groups: list/tuple/str</dt><dd><p>Name of the groups.</p>
 </dd>
-<dt>dtype<span class="classifier">str | ‘float’</span></dt><dd><p>Data type to be loaded into.</p>
+<dt>dtype: str | ‘float’</dt><dd><p>Data type to be loaded into.</p>
 </dd>
-<dt><a href="#id7"><span class="problematic" id="id8">**</span></a>kwds<span class="classifier">keyword arguments</span></dt><dd><p>See <code class="docutils literal notranslate"><span class="pre">h5py.File()</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Return</dt>
-<dd class="field-even"><dl class="simple">
-<dt>outdict<span class="classifier">dict</span></dt><dd><p>Dictionary containing the hierarchical contents of the file.</p>
+<dt><a href="#id7"><span class="problematic" id="id8">**</span></a>kwds: keyword arguments</dt><dd><p>See <code class="docutils literal notranslate"><span class="pre">h5py.File()</span></code>.</p>
 </dd>
 </dl>
+<p><strong>Return</strong></p>
+<dl class="simple">
+<dt>outdict: dict</dt><dd><p>Dictionary containing the hierarchical contents of the file.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -319,16 +305,13 @@
 <dt id="fuller.utils.load_bandstruct">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">load_bandstruct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">varnames</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.load_bandstruct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load band structure information from file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>File path to load from.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>path: str</dt><dd><p>File path to load from.</p>
 </dd>
-<dt>form<span class="classifier">str</span></dt><dd><p>Format of the file to load.</p>
+<dt>form: str</dt><dd><p>Format of the file to load.</p>
 </dd>
-<dt>varnames<span class="classifier">list | []</span></dt><dd><p>Names of the variables to load.</p>
-</dd>
-</dl>
+<dt>varnames: list | []</dt><dd><p>Names of the variables to load.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -337,28 +320,24 @@
 <dt id="fuller.utils.load_calculation">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">load_calculation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">nkx</span><span class="o">=</span><span class="default_value">120</span></em>, <em class="sig-param"><span class="n">nky</span><span class="o">=</span><span class="default_value">55</span></em>, <em class="sig-param"><span class="n">delim</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">drop_pos</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">drop_axis</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">baxis</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">maxid</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.load_calculation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read and reshape energy band calculation results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>File path where the calculation output file is located.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>path: str</dt><dd><p>File path where the calculation output file is located.</p>
 </dd>
-<dt>nkx, nky<span class="classifier">int, int</span></dt><dd><p>Number of k points sampled along the kx and ky directions.</p>
+<dt>nkx, nky: int, int</dt><dd><p>Number of k points sampled along the kx and ky directions.</p>
 </dd>
-<dt>delim<span class="classifier">str | ‘ ‘</span></dt><dd><p>Delimiter used for reading the calculation output file (default a space string).</p>
+<dt>delim: str | ‘ ‘</dt><dd><p>Delimiter used for reading the calculation output file (default a space string).</p>
 </dd>
-<dt>drop_pos, drop_axis<span class="classifier">int, int | 2, 1</span></dt><dd><p>The position and axis along which to drop the elements.</p>
+<dt>drop_pos, drop_axis: int, int | 2, 1</dt><dd><p>The position and axis along which to drop the elements.</p>
 </dd>
-<dt>baxis<span class="classifier">int | 2</span></dt><dd><p>Axis of the energy band index.</p>
+<dt>baxis: int | 2</dt><dd><p>Axis of the energy band index.</p>
 </dd>
-<dt>maxid<span class="classifier">int | None</span></dt><dd><p>Maximum limiting index of the read array.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Return</dt>
-<dd class="field-even"><dl class="simple">
-<dt>ebands<span class="classifier">3D array</span></dt><dd><p>Collection of energy bands indexed by their energies.</p>
+<dt>maxid: int | None</dt><dd><p>Maximum limiting index of the read array.</p>
 </dd>
 </dl>
+<p><strong>Return</strong></p>
+<dl class="simple">
+<dt>ebands: 3D array</dt><dd><p>Collection of energy bands indexed by their energies.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -367,20 +346,17 @@
 <dt id="fuller.utils.load_multiple_bands">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">load_multiple_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">ename</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">kname</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">form</span><span class="o">=</span><span class="default_value">'h5'</span></em>, <em class="sig-param"><span class="n">dtyp</span><span class="o">=</span><span class="default_value">'float'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.load_multiple_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom loader for multiple reconstructed bands.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>folder<span class="classifier">str</span></dt><dd><p>Name of the folder.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>folder: str</dt><dd><p>Name of the folder.</p>
 </dd>
-<dt>ename, kname<span class="classifier">str, str | ‘’, ‘’</span></dt><dd><p>Name of the energy and momentum variables stored in the files.</p>
+<dt>ename, kname: str, str | ‘’, ‘’</dt><dd><p>Name of the energy and momentum variables stored in the files.</p>
 </dd>
-<dt>form<span class="classifier">str | ‘h5’</span></dt><dd><p>Format of the files.</p>
+<dt>form: str | ‘h5’</dt><dd><p>Format of the files.</p>
 </dd>
-<dt>dtype<span class="classifier">str | ‘float’</span></dt><dd><p>Data type to load the files into.</p>
+<dt>dtype: str | ‘float’</dt><dd><p>Data type to load the files into.</p>
 </dd>
-<dt><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs<span class="classifier">keyword arguments</span></dt><dd><p>Extra keywords for <code class="docutils literal notranslate"><span class="pre">h5py.File()</span></code>.</p>
-</dd>
-</dl>
+<dt><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs: keyword arguments</dt><dd><p>Extra keywords for <code class="docutils literal notranslate"><span class="pre">h5py.File()</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -389,18 +365,16 @@
 <dt id="fuller.utils.nonneg_sum_decomposition">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">nonneg_sum_decomposition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">absum</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.nonneg_sum_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nonnegative decomposition of a sum.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>a, b<span class="classifier">numeric/None, numeric/None | None, None</span></dt><dd><p>Two numerics for decomposition.</p>
+<dl class="simple">
+<dt>Paramters:</dt><dd><dl class="simple">
+<dt>a, b: numeric/None, numeric/None | None, None</dt><dd><p>Two numerics for decomposition.</p>
 </dd>
-<dt>absum<span class="classifier">numeric</span></dt><dd><p>Sum of the values.</p>
+<dt>absum: numeric</dt><dd><p>Sum of the values.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>a, b<span class="classifier">numeric, numeric</span></dt><dd><p>Nonnegative values of a and b from the decomposition.</p>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>a, b: numeric, numeric</dt><dd><p>Nonnegative values of a and b from the decomposition.</p>
 </dd>
 </dl>
 </dd>
@@ -417,12 +391,11 @@
 <dt id="fuller.utils.pick_operator">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">pick_operator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fstring</span></em>, <em class="sig-param"><span class="n">package</span><span class="o">=</span><span class="default_value">'numpy'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.pick_operator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an operator function from the specified pacakge.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameter</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>sstring<span class="classifier">str</span></dt><dd><p>The namestring of the numpy function.</p>
+<dl class="simple">
+<dt>Parameter:</dt><dd><dl class="simple">
+<dt>sstring: str</dt><dd><p>The namestring of the numpy function.</p>
 </dd>
-<dt>package<span class="classifier">str | ‘numpy’</span></dt><dd><p>The name of the software package to extract the function.</p>
+<dt>package: str | ‘numpy’</dt><dd><p>The name of the software package to extract the function.</p>
 </dd>
 </dl>
 </dd>
@@ -433,15 +406,12 @@
 <dt id="fuller.utils.saveHDF">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">saveHDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">groups</span></em>, <em class="sig-param"><span class="n">save_addr</span><span class="o">=</span><span class="default_value">'./file.h5'</span></em>, <em class="sig-param"><span class="n">track_order</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.saveHDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine dictionaries and save into a hierarchical structure.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>groups<span class="classifier">list/tuple</span></dt><dd><p>Group specified in the following manner that incorporates the name as a string
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>groups: list/tuple</dt><dd><p>Group specified in the following manner that incorporates the name as a string
 and the content and or substructure as a dictionary, [‘folder_name’, folder_dict].</p>
 </dd>
-<dt>save_addr<span class="classifier">str | ‘./file.h5’</span></dt><dd><p>File directory for saving the HDF.</p>
-</dd>
-</dl>
+<dt>save_addr: str | ‘./file.h5’</dt><dd><p>File directory for saving the HDF.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -462,10 +432,9 @@ and the content and or substructure as a dictionary, [‘folder_name’, folder_
 <dt id="fuller.utils.tqdmenv">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">tqdmenv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.tqdmenv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose tqdm progress bar executing environment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameter</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>env<span class="classifier">str</span></dt><dd><p>Name of the environment, ‘classic’ for ordinary environment,
+<dl class="simple">
+<dt>Parameter:</dt><dd><dl class="simple">
+<dt>env: str</dt><dd><p>Name of the environment, ‘classic’ for ordinary environment,
 ‘notebook’ for Jupyter notebook.</p>
 </dd>
 </dl>
@@ -477,24 +446,20 @@ and the content and or substructure as a dictionary, [‘folder_name’, folder_
 <dt id="fuller.utils.trim_2d_edge">
 <code class="sig-prename descclassname">fuller.utils.</code><code class="sig-name descname">trim_2d_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arr</span></em>, <em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">0, 1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.utils.trim_2d_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trim 2D edges in the first two dimensions of an nD array.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>arr<span class="classifier">numpy array</span></dt><dd><p>Array to trim .</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>arr: numpy array</dt><dd><p>Array to trim .</p>
 </dd>
-<dt>edges<span class="classifier">numeric/list/tuple/numpy array</span></dt><dd><p>The amount of edges to trim. If a single value is assigned, the two ends of the
+<dt>edges: numeric/list/tuple/numpy array</dt><dd><p>The amount of edges to trim. If a single value is assigned, the two ends of the
 axes are trimmed equally. If a list of four different values is assigned, they are
 applied to the two axes in the order <cite>(start_1, end_1, start_2, end_2)</cite>.</p>
 </dd>
-<dt>axes<span class="classifier">list/tuple</span></dt><dd><p>Specified axes/dimensions to trim.</p>
+<dt>axes: list/tuple</dt><dd><p>Specified axes/dimensions to trim.</p>
 </dd>
 </dl>
-</dd>
-<dt class="field-even">Return</dt>
-<dd class="field-even"><dl class="simple">
-<dt>trimmed<span class="classifier">numpy array</span></dt><dd><p>Axis-trimmed array.</p>
-</dd>
-</dl>
+<p><strong>Return</strong></p>
+<dl class="simple">
+<dt>trimmed: numpy array</dt><dd><p>Axis-trimmed array.</p>
 </dd>
 </dl>
 </dd></dl>

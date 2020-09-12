@@ -19,14 +19,14 @@ from itertools import product
 def nonneg_sum_decomposition(absum, a=None, b=None):
     """ Nonnegative decomposition of a sum.
 
-    :Paramters:
-        a, b : numeric/None, numeric/None | None, None
+    Paramters:
+        a, b: numeric/None, numeric/None | None, None
             Two numerics for decomposition.
-        absum : numeric
+        absum: numeric
             Sum of the values.
 
-    :Returns:
-        a, b : numeric, numeric
+    Returns:
+        a, b: numeric, numeric
             Nonnegative values of a and b from the decomposition.
     """
 
@@ -51,8 +51,8 @@ def nonneg_sum_decomposition(absum, a=None, b=None):
 def tqdmenv(env):
     """ Choose tqdm progress bar executing environment.
 
-    :Parameter:
-        env : str
+    Parameter:
+        env: str
             Name of the environment, 'classic' for ordinary environment,
             'notebook' for Jupyter notebook.
     """
@@ -85,16 +85,18 @@ def valrange(arr):
 def interpolate2d(oldx, oldy, vals, nx=None, ny=None, ret='interpolant', **kwargs):
     """ Interpolate values in a newer and/or finer grid.
 
-    :Parameters:
-        oldx, oldy : 1D array, 1D array
-            Values of the old x and y axes.
-        vals : 2D array
-            Image pixel values associated with the old x and y axes.
-        nx, ny : int, int | None, None
-            Number of elements in the interpolated axes.
-        ret : str | 'interpolant'
-            Specification of the return parts.
-        **kwargs : keyword arguments
+    **Parameters**\n
+    oldx, oldy: 1D array, 1D array
+        Values of the old x and y axes.
+    vals: 2D array
+        Image pixel values associated with the old x and y axes.
+    nx, ny: int, int | None, None
+        Number of elements in the interpolated axes.
+    ret: str | 'interpolant'
+        Specification of the return parts.
+    **kwargs: keyword arguments
+        newx, newy: 1D array, 1D array
+            Axes' values after interpolation.
     """
 
     newx = kwargs.pop('newx', np.linspace(oldx.min(), oldx.max(), nx, endpoint=True))
@@ -133,14 +135,14 @@ def findFiles(fdir, fstring='', ftype='h5', **kwds):
     """
     Retrieve files named in a similar way from a folder.
     
-    :Parameters:
-        fdir : str
+    Parameters:
+        fdir: str
             Folder name where the files are stored.
-        fstring : str | ''
+        fstring: str | ''
             Extra string in the filename.
-        ftype : str | 'h5'
+        ftype: str | 'h5'
             The type of files to retrieve.
-        **kwds : keyword arguments
+        **kwds: keyword arguments
             Extra keywords for `natsorted()`.
     """
     
@@ -152,12 +154,12 @@ def findFiles(fdir, fstring='', ftype='h5', **kwds):
 def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
     """ Combine dictionaries and save into a hierarchical structure.
 
-    :Parameters:
-        groups : list/tuple
-            Group specified in the following manner that incorporates the name as a string
-            and the content and or substructure as a dictionary, ['folder_name', folder_dict].
-        save_addr : str | './file.h5'
-            File directory for saving the HDF.
+    **Parameters**\n
+    groups: list/tuple
+        Group specified in the following manner that incorporates the name as a string
+        and the content and or substructure as a dictionary, ['folder_name', folder_dict].
+    save_addr: str | './file.h5'
+        File directory for saving the HDF.
     """
 
     try:
@@ -176,21 +178,21 @@ def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
 def loadHDF(load_addr, hierarchy='flat', groups='all', track_order=True, dtyp='float', **kwds):
     """ Load contents in an HDF.
 
-    :Parameters:
-        load_addr : str
-            Address of the file to load.
-        hierarchy : str | 'flat'
-            Hierarchy of the file structure to load into.
-        groups : list/tuple/str
-            Name of the groups.
-        dtype : str | 'float'
-            Data type to be loaded into.
-        **kwds : keyword arguments
-            See ``h5py.File()``.
+    **Parameters**\n
+    load_addr: str
+        Address of the file to load.
+    hierarchy: str | 'flat'
+        Hierarchy of the file structure to load into.
+    groups: list/tuple/str
+        Name of the groups.
+    dtype: str | 'float'
+        Data type to be loaded into.
+    **kwds: keyword arguments
+        See ``h5py.File()``.
 
-    :Return:
-        outdict : dict
-            Dictionary containing the hierarchical contents of the file.
+    **Return**\n
+    outdict: dict
+        Dictionary containing the hierarchical contents of the file.
     """
 
     outdict = {}
@@ -214,15 +216,15 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
     """
     Load specified content from a single complex HDF5 file.
     
-    :Parameters:
-        filename : str
-            Namestring of the file.
-        content : list/tuple
-            Collection of names for the content to retrieve.
-        outtype : str | 'dict'
-            Option to specify the format of output ('dict', 'list', 'vals').
-        alias : list/tuple | None
-            Collection of aliases to assign to each entry in content in the output dictionary.
+    **Parameters**\n
+    filename: str
+        Namestring of the file.
+    content: list/tuple
+        Collection of names for the content to retrieve.
+    outtype: str | 'dict'
+        Option to specify the format of output ('dict', 'list', 'vals').
+    alias: list/tuple | None
+        Collection of aliases to assign to each entry in content in the output dictionary.
     """
     
     with File(filename) as f:
@@ -245,13 +247,13 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
 def load_bandstruct(path, form, varnames=[]):
     """ Load band structure information from file.
 
-    :Parameters:
-        path : str
-            File path to load from.
-        form : str
-            Format of the file to load.
-        varnames : list | []
-            Names of the variables to load.
+    **Parameters**\n
+    path: str
+        File path to load from.
+    form: str
+        Format of the file to load.
+    varnames: list | []
+        Names of the variables to load.
     """
 
     nvars = len(varnames)
@@ -270,17 +272,17 @@ def load_bandstruct(path, form, varnames=[]):
 def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **kwargs):
     """ Custom loader for multiple reconstructed bands.
 
-    :Parameters:
-        folder : str
-            Name of the folder.
-        ename, kname : str, str | '', ''
-            Name of the energy and momentum variables stored in the files.
-        form : str | 'h5'
-            Format of the files.
-        dtype : str | 'float'
-            Data type to load the files into.
-        **kwargs : keyword arguments
-            Extra keywords for ``h5py.File()``.
+    **Parameters**\n
+    folder: str
+        Name of the folder.
+    ename, kname: str, str | '', ''
+        Name of the energy and momentum variables stored in the files.
+    form: str | 'h5'
+        Format of the files.
+    dtype: str | 'float'
+        Data type to load the files into.
+    **kwargs: keyword arguments
+        Extra keywords for ``h5py.File()``.
     """
 
     if form in ('h5', 'hdf5'):
@@ -311,23 +313,23 @@ def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **k
 def load_calculation(path, nkx=120, nky=55, delim=' ', drop_pos=2, drop_axis=1, baxis=None, maxid=None):
     """ Read and reshape energy band calculation results.
 
-    :Parameters:
-        path : str
-            File path where the calculation output file is located.
-        nkx, nky : int, int
-            Number of k points sampled along the kx and ky directions.
-        delim : str | ' '
-            Delimiter used for reading the calculation output file (default a space string).
-        drop_pos, drop_axis : int, int | 2, 1
-            The position and axis along which to drop the elements.
-        baxis : int | 2
-            Axis of the energy band index.
-        maxid : int | None
-            Maximum limiting index of the read array.
+    **Parameters**\n
+    path: str
+        File path where the calculation output file is located.
+    nkx, nky: int, int
+        Number of k points sampled along the kx and ky directions.
+    delim: str | ' '
+        Delimiter used for reading the calculation output file (default a space string).
+    drop_pos, drop_axis: int, int | 2, 1
+        The position and axis along which to drop the elements.
+    baxis: int | 2
+        Axis of the energy band index.
+    maxid: int | None
+        Maximum limiting index of the read array.
 
-    :Return:
-        ebands : 3D array
-            Collection of energy bands indexed by their energies.
+    **Return**\n
+    ebands: 3D array
+        Collection of energy bands indexed by their energies.
     """
 
     nkx, nky = int(nkx), int(nky)
@@ -354,10 +356,10 @@ def load_calculation(path, nkx=120, nky=55, delim=' ', drop_pos=2, drop_axis=1, 
 def pick_operator(fstring, package='numpy'):
     """ Return an operator function from the specified pacakge.
 
-    :Parameter:
-        sstring : str
+    Parameter:
+        sstring: str
             The namestring of the numpy function.
-        package : str | 'numpy'
+        package: str | 'numpy'
             The name of the software package to extract the function.
     """
 
@@ -399,21 +401,21 @@ def fexp(ke, length):
 def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, seed=None, **kwargs):
     """ Generate random sequence from a distribution modulated by an envelope function and a mask.
     
-    :Parameters:
-        size : list/tuple
-            Size of the coefficient array.
-        amp : numeric | 1
-            Global amplitude scaling of the random sequence.
-        distribution : str | 'uniform'
-            Type of distribution to draw from.
-        mask : ndarray | None
-            Amplitude mask array.
-        modulation : ndarray/str | None
-            Amplitude modulation array.
-        seed : numeric | None:
-            Seed value for the random number generator.
-        **kwargs : keyword arguments
-            Additional arguments for the distribution function.
+    **Parameters**\n
+    size: list/tuple
+        Size of the coefficient array.
+    amp: numeric | 1
+        Global amplitude scaling of the random sequence.
+    distribution: str | 'uniform'
+        Type of distribution to draw from.
+    mask: ndarray | None
+        Amplitude mask array.
+    modulation: ndarray/str | None
+        Amplitude modulation array.
+    seed: numeric | None:
+        Seed value for the random number generator.
+    **kwargs: keyword arguments
+        Additional arguments for the specified distribution function.s
     """
     
     op_package = kwargs.pop('package', 'numpy.random')
@@ -454,22 +456,22 @@ def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, se
 def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq='geq'):
     """ Binarize an array by a threshold.
 
-    :Parameters:
-        cfs : list/tuple/numpy array
-            Numerical object.
-        threshold : numeric
-            Numerical threshold for binarization.
-        vals : list/tuple/numpy array
-            Values assigned to the two sides of the threshold.
-        absolute : bool | True
-            Option to use the absolute value for thresholding.
-        eq : str | 'geq'
-            Options to treat the values equal to the threshold (`'leq'` for less or equal,
-            `'geq'` for greater or equal, `None` for drop the threshold-equalling values).
+    **Parameters**\n
+    cfs: list/tuple/numpy array
+        Numerical object.
+    threshold: numeric
+        Numerical threshold for binarization.
+    vals: list/tuple/numpy array
+        Values assigned to the two sides of the threshold.
+    absolute: bool | True
+        Option to use the absolute value for thresholding.
+    eq: str | 'geq'
+        Options to treat the values equal to the threshold (`'leq'` for less or equal,
+        `'geq'` for greater or equal, `None` for drop the threshold-equalling values).
 
-    :Return:
-        arr : list/tuple/numpy array
-            Binarized array.
+    **Return**\n
+    arr: list/tuple/numpy array
+        Binarized array.
     """
     
     arr = np.array(cfs)
@@ -492,19 +494,19 @@ def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq='geq'):
 def trim_2d_edge(arr, edges, axes=(0, 1)):
     """ Trim 2D edges in the first two dimensions of an nD array.
 
-    :Parameters:
-        arr : numpy array
-            Array to trim .
-        edges : numeric/list/tuple/numpy array
-            The amount of edges to trim. If a single value is assigned, the two ends of the
-            axes are trimmed equally. If a list of four different values is assigned, they are
-            applied to the two axes in the order `(start_1, end_1, start_2, end_2)`.
-        axes : list/tuple
-            Specified axes/dimensions to trim.
+    **Parameters**\n
+    arr: numpy array
+        Array to trim .
+    edges: numeric/list/tuple/numpy array
+        The amount of edges to trim. If a single value is assigned, the two ends of the
+        axes are trimmed equally. If a list of four different values is assigned, they are
+        applied to the two axes in the order `(start_1, end_1, start_2, end_2)`.
+    axes: list/tuple
+        Specified axes/dimensions to trim.
 
-    :Return:
-        trimmed : numpy array
-            Axis-trimmed array.
+    **Return**\n
+    trimmed: numpy array
+        Axis-trimmed array.
     """
     
     edges = np.array(edges)
