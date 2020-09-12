@@ -23,15 +23,15 @@ def dcos(a, b):
 def demean(arr, meanax=1, idx=0, **kwds):
     """ Subtract the mean of an axial direction in an array (2D or higher) from all entries in that direciton.
 
-    :Parameters:
-        arr : list/tuple/numpy array
-            Input array (at least 2D).
-        meanax : int | 1
-            Axis along which to calculate the mean.
-        idx : int | 0
-            Entry index in the axis specified previously.
-        **kwds : keyword arguments
-            Additional arguments for the `numpy.mean()` function.
+    **Parameters**\n
+    arr: list/tuple/numpy array
+        Input array (at least 2D).
+    meanax: int | 1
+        Axis along which to calculate the mean.
+    idx: int | 0
+        Entry index in the axis specified previously.
+    **kwds: keyword arguments
+        Additional arguments for the `numpy.mean()` function.
     """
 
     arr = np.array(arr)
@@ -47,19 +47,19 @@ def demean(arr, meanax=1, idx=0, **kwds):
 def similarity_matrix(feature_mat, axis=0, fmetric=dcos, **kwds):
     """ Calculation of the similarity matrix.
 
-    :Parameters:
-        feature_mat : list/tuple/numpy array
-            Feature matrix (2D or higher dimenions).
-        axis : int
-            Axis along which the features are aligned to.
-        fmetric : function | dcos
-            Metric function for calculating the similarity between each pair of features.
-        **kwds : keyword arguments
-            Extra arguments for the metric function.
+    **Parameters**\n
+    feature_mat: list/tuple/numpy array
+        Feature matrix (2D or higher dimenions).
+    axis: int
+        Axis along which the features are aligned to.
+    fmetric: function | dcos
+        Metric function for calculating the similarity between each pair of features.
+    **kwds: keyword arguments
+        Extra arguments for the metric function ``fmetric``.
 
-    :Return:
-        smat : 2D numpy array
-            Calculated similarity matrix.
+    **Return**\n
+    smat: 2D numpy array
+        Calculated similarity matrix.
     """
 
     if not inspect.isfunction(fmetric):
@@ -81,17 +81,17 @@ def similarity_matrix(feature_mat, axis=0, fmetric=dcos, **kwds):
 def abserror(result, ref, keys, ofs=None, mask=1, **kwargs):
     """ Calculate the averaged absolute approximation error per band.
     
-    :Parameters:
-        result : dict
-            Dictionary containing the reconstruction results.
-        ref : 3d array
-            Reference bands or band structure to compare against.
-        keys : list/tuple
-            Dictionary keys.
-        ofs : int | None
-            Pixel offset on each side.
-        mask : 2d array | 1
-            Brillouin zone mask applied to the reconstruction results.
+    **Parameters**\n
+    result: dict
+        Dictionary containing the reconstruction results.
+    ref: 3D array
+        Reference bands or band structure to compare against.
+    keys: list/tuple
+        Dictionary keys.
+    ofs: int | None
+        Pixel offset on each side.
+    mask: 2D array | 1
+        Brillouin zone mask applied to the reconstruction results.
     """
     
     abserr = {}

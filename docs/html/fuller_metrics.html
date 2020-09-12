@@ -164,20 +164,17 @@
 <dt id="fuller.metrics.abserror">
 <code class="sig-prename descclassname">fuller.metrics.</code><code class="sig-name descname">abserror</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">ref</span></em>, <em class="sig-param"><span class="n">keys</span></em>, <em class="sig-param"><span class="n">ofs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.metrics.abserror" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the averaged absolute approximation error per band.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>result<span class="classifier">dict</span></dt><dd><p>Dictionary containing the reconstruction results.</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>result: dict</dt><dd><p>Dictionary containing the reconstruction results.</p>
 </dd>
-<dt>ref<span class="classifier">3d array</span></dt><dd><p>Reference bands or band structure to compare against.</p>
+<dt>ref: 3D array</dt><dd><p>Reference bands or band structure to compare against.</p>
 </dd>
-<dt>keys<span class="classifier">list/tuple</span></dt><dd><p>Dictionary keys.</p>
+<dt>keys: list/tuple</dt><dd><p>Dictionary keys.</p>
 </dd>
-<dt>ofs<span class="classifier">int | None</span></dt><dd><p>Pixel offset on each side.</p>
+<dt>ofs: int | None</dt><dd><p>Pixel offset on each side.</p>
 </dd>
-<dt>mask<span class="classifier">2d array | 1</span></dt><dd><p>Brillouin zone mask applied to the reconstruction results.</p>
-</dd>
-</dl>
+<dt>mask: 2D array | 1</dt><dd><p>Brillouin zone mask applied to the reconstruction results.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -192,18 +189,15 @@
 <dt id="fuller.metrics.demean">
 <code class="sig-prename descclassname">fuller.metrics.</code><code class="sig-name descname">demean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arr</span></em>, <em class="sig-param"><span class="n">meanax</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">idx</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.metrics.demean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subtract the mean of an axial direction in an array (2D or higher) from all entries in that direciton.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>arr<span class="classifier">list/tuple/numpy array</span></dt><dd><p>Input array (at least 2D).</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>arr: list/tuple/numpy array</dt><dd><p>Input array (at least 2D).</p>
 </dd>
-<dt>meanax<span class="classifier">int | 1</span></dt><dd><p>Axis along which to calculate the mean.</p>
+<dt>meanax: int | 1</dt><dd><p>Axis along which to calculate the mean.</p>
 </dd>
-<dt>idx<span class="classifier">int | 0</span></dt><dd><p>Entry index in the axis specified previously.</p>
+<dt>idx: int | 0</dt><dd><p>Entry index in the axis specified previously.</p>
 </dd>
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwds<span class="classifier">keyword arguments</span></dt><dd><p>Additional arguments for the <cite>numpy.mean()</cite> function.</p>
-</dd>
-</dl>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwds: keyword arguments</dt><dd><p>Additional arguments for the <cite>numpy.mean()</cite> function.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -212,24 +206,20 @@
 <dt id="fuller.metrics.similarity_matrix">
 <code class="sig-prename descclassname">fuller.metrics.</code><code class="sig-name descname">similarity_matrix</code><span class="sig-paren">(</span><em class="sig-param">feature_mat</em>, <em class="sig-param">axis=0</em>, <em class="sig-param">fmetric=&lt;function dcos&gt;</em>, <em class="sig-param">**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.metrics.similarity_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculation of the similarity matrix.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt>feature_mat<span class="classifier">list/tuple/numpy array</span></dt><dd><p>Feature matrix (2D or higher dimenions).</p>
+<p><strong>Parameters</strong></p>
+<dl class="simple">
+<dt>feature_mat: list/tuple/numpy array</dt><dd><p>Feature matrix (2D or higher dimenions).</p>
 </dd>
-<dt>axis<span class="classifier">int</span></dt><dd><p>Axis along which the features are aligned to.</p>
+<dt>axis: int</dt><dd><p>Axis along which the features are aligned to.</p>
 </dd>
-<dt>fmetric<span class="classifier">function | dcos</span></dt><dd><p>Metric function for calculating the similarity between each pair of features.</p>
+<dt>fmetric: function | dcos</dt><dd><p>Metric function for calculating the similarity between each pair of features.</p>
 </dd>
-<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwds<span class="classifier">keyword arguments</span></dt><dd><p>Extra arguments for the metric function.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Return</dt>
-<dd class="field-even"><dl class="simple">
-<dt>smat<span class="classifier">2D numpy array</span></dt><dd><p>Calculated similarity matrix.</p>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwds: keyword arguments</dt><dd><p>Extra arguments for the metric function <code class="docutils literal notranslate"><span class="pre">fmetric</span></code>.</p>
 </dd>
 </dl>
+<p><strong>Return</strong></p>
+<dl class="simple">
+<dt>smat: 2D numpy array</dt><dd><p>Calculated similarity matrix.</p>
 </dd>
 </dl>
 </dd></dl>
