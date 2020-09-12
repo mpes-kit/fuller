@@ -22,26 +22,26 @@ def hexmask(hexdiag=128, imside=256, image=None, padded=False, margins=[], pad_t
     given. The image padding on four sides could be specified with either ``margins`` altogether or separately
     with the individual arguments ``pad_xxx``. For the latter, at least two independent padding values are needed.
 
-    :Parameters:
-        hexdiag : int | 128
-            Number of pixels along the hexagon's diagonal.
-        imside : int | 256
-            Number of pixels along the side of the (square) reference image.
-        image : 2D array | None
-            2D reference image to construct the mask for. If the reference (image) is given, each side
-            of the generated mask is at least that of the smallest dimension of the reference.
-        padded : bool | False
-            Option to pad the image (need to set to True to enable the margins).
-        margins : list/tuple | []
-            Margins of the image [top, bottom, left, right]. Overrides the `pad_xxx` arguments.
-        pad_top, pad_bottom, pad_left, pad_right : int, int, int, int | None, None, None, None
-            Number of padded pixels on each of the four sides of the image.
-        vertical : bool | True
-            Option to align the diagonal of the hexagon with the vertical image axis.
-        outside : numeric/str | 'nan'
-            Pixel value outside the masked region.
-        ret : str | 'mask'
-            Return option ('mask', 'masked_image', 'all').
+    **Parameters**\n
+    hexdiag: int | 128
+        Number of pixels along the hexagon's diagonal.
+    imside: int | 256
+        Number of pixels along the side of the (square) reference image.
+    image: 2D array | None
+        2D reference image to construct the mask for. If the reference (image) is given, each side
+        of the generated mask is at least that of the smallest dimension of the reference.
+    padded: bool | False
+        Option to pad the image (need to set to True to enable the margins).
+    margins: list/tuple | []
+        Margins of the image [top, bottom, left, right]. Overrides the `pad_xxx` arguments.
+    pad_top, pad_bottom, pad_left, pad_right : int, int, int, int | None, None, None, None
+        Number of padded pixels on each of the four sides of the image.
+    vertical: bool | True
+        Option to align the diagonal of the hexagon with the vertical image axis.
+    outside: numeric/str | 'nan'
+        Pixel value outside the masked region.
+    ret: str | 'mask'
+        Return option ('mask', 'masked_image', 'all').
     """
 
     if image is not None:
@@ -82,19 +82,19 @@ def hexmask(hexdiag=128, imside=256, image=None, padded=False, margins=[], pad_t
 def decomposition_hex2d(band, bases=None, baxis=0, nterms=100, basis_type='Zernike', ret='coeffs'):
     """ Decompose energy band in 3D momentum space using the orthogonal polynomials in a hexagon.
 
-    :Parameters:
-        band : 2D array
-            2D electronic band structure.
-        bases : 3D array | None
-            Matrix composed of bases to decompose into.
-        baxis : int | 0
-            Axis of the basis index.
-        nterms : int | 100
-            Number of basis terms.
-        basis_type : str | 'Zernike'
-            Type of basis to use.
-        ret : str | 'coeffs'
-            Options for the return values.
+    **Parameters**\n
+    band: 2D array
+        2D electronic band structure.
+    bases: 3D array | None
+        Matrix composed of bases to decompose into.
+    baxis: int | 0
+        Axis of the basis index.
+    nterms: int | 100
+        Number of basis terms.
+    basis_type: str | 'Zernike'
+        Type of basis to use.
+    ret: str | 'coeffs'
+        Options for the return values.
     """
 
     nbr, nbc = band.shape
@@ -127,19 +127,19 @@ def reconstruction_hex2d(coeffs, bases=None, baxis=0, npix=256, basis_type='Zern
     """ Reconstruction of energy band in 3D momentum space using orthogonal polynomials
     and the term-wise coefficients.
 
-    :Parameters:
-        coeffs : 1D array
-            Polynomial coefficients to use in reconstruction.
-        bases : 3D array | None
-            Matrix composed of bases to decompose into.
-        baxis : int | 0
-            Axis of the basis index.
-        npix : int | 256
-            Number of pixels along one side in the square image.
-        basis_type : str | 'Zernike'
-            Type of basis to use.
-        ret : str | 'band'
-            Options for the return values.
+    **Parameters**\n
+    coeffs: 1D array
+        Polynomial coefficients to use in reconstruction.
+    bases: 3D array | None
+        Matrix composed of bases to decompose into.
+    baxis: int | 0
+        Axis of the basis index.
+    npix: int | 256
+        Number of pixels along one side in the square image.
+    basis_type: str | 'Zernike'
+        Type of basis to use.
+    ret: str | 'band'
+        Options for the return values.
     """
 
     coeffs = coeffs.ravel()
@@ -264,13 +264,13 @@ def polyreconstruct(coeffs, ids=None, polytype='Legendre', flatten=True):
 def transdeform(imbase, xtrans=0, ytrans=0, interp_order=1, **kwargs):
     """ Image translation using deformation field.
 
-    :Parameters:
-        imbase : 2D array
-            Base image before translation.
-        xtrans, ytrans : numeric, numeric | 0, 0
-            Magnitude of translation along the x and y axes.
-        **kwargs : keyword arguments
-            See additional arguments in `scipy.ndimage.map_coordinates()`.
+    **Parameters**\n
+    imbase: 2D array
+        Base image before translation.
+    xtrans, ytrans: numeric, numeric | 0, 0
+        Magnitude of translation along the x and y axes.
+    **kwargs: keyword arguments
+        See additional arguments in `scipy.ndimage.map_coordinates()`.
     """
 
     coordmat = sym.coordinate_matrix_2D(imbase, coordtype='homogeneous', stackaxis=0)
@@ -284,19 +284,19 @@ def transdeform(imbase, xtrans=0, ytrans=0, interp_order=1, **kwargs):
 def rotodeform(imbase, angle, center, interp_order=1, **kwargs):
     """ Image rotation using deformation field.
 
-    :Parameters:
-        imbase : 2D array
-            Base image before rotation.
-        angle : numeric
-            Angle of rotation.
-        center : list/tuple
-            Center pixel coordinates of the image.
-        **kwargs : keyword arguments
-            See additional arguments in `scipy.ndimage.map_coordinates()`.
+    **Parameters**\n
+    imbase: 2D array
+        Base image before rotation.
+    angle: numeric
+        Angle of rotation.
+    center: list/tuple
+        Center pixel coordinates of the image.
+    **kwargs: keyword arguments
+        See additional arguments in `scipy.ndimage.map_coordinates()`.
 
-    :Return:
-        imshift : 2D array
-            Rotated image.
+    **Return**\n
+    imshift: 2D array
+        Rotated image.
     """
 
     coordmat = sym.coordinate_matrix_2D(imbase, coordtype='homogeneous', stackaxis=0)
@@ -310,18 +310,18 @@ def rotodeform(imbase, angle, center, interp_order=1, **kwargs):
 def rotosymmetrize(image, center, rotsym=None, angles=None, outside='nan', **kwargs):
     """ Symmetrize the pattern according to the rotational symmetry.
 
-    :Parameters:
-        image : 2D array
-            Image to symmetrize.
-        center : list/tuple
-            Image center pixel position (row, column).
-        rotsym : int | None
-            Order of rotation symmetry (if regular symmetry is assumed). If ``rotsym``
-            is specified, the values from ``angles`` are ignored.
-        angles : numeric | None
-            Angles of rotation.
-        outside : str/numeric | 'nan'
-            The values of the symmetrized image outside the masked boundary.
+    **Parameters**\n
+    image: 2D array
+        Image to symmetrize.
+    center: list/tuple
+        Image center pixel position (row, column).
+    rotsym: int | None
+        Order of rotation symmetry (if regular symmetry is assumed). If ``rotsym``
+        is specified, the values from ``angles`` are ignored.
+    angles: numeric | None
+        Angles of rotation.
+    outside: str/numeric | 'nan'
+        The values of the symmetrized image outside the masked boundary.
     """
 
     image = np.nan_to_num(image)
@@ -348,19 +348,23 @@ def rotosymdetect(image, center, rotrange=list(range(-30, 330, 5)), lookahead=4,
                     pbar=True, pbenv='classic'):
     """ Detect the degree of rotational symmetry of an image.
 
-    :Parameters:
-        image : 2D array
-        center : list/tuple
-        rotrange : list/tuple | list(range(-30, 330, 5))
-        lookahead : int | 4
-        pbar : bool | True
-            Option to show progress bar.
-        pbenv : str | 'classic'
-            Progress bar environment ('classic' or 'notebook').
+    **Parameters**\n
+    image: 2D array
+        Image for rotational symmetry detection.
+    center: list/tuple
+        Image center coordinates.
+    rotrange: list/tuple | list(range(-30, 330, 5))
+        Rotation values to test.
+    lookahead: int | 4
+        Number of points ahead taken into consideration in peak detection.
+    pbar: bool | True
+        Option to show progress bar.
+    pbenv: str | 'classic'
+        Progress bar environment ('classic' or 'notebook').
 
-    :Return:
-        nmax : int
-            Order of rotational symmetry.
+    **Return**\n
+    nmax: int
+        Order of rotational symmetry.
     """
 
     val = []
@@ -384,16 +388,23 @@ def hexfilter(images, center, axis=0, rotrange=list(range(-30, 330, 5)), lookahe
                 pbar=True, pbenv='classic', ret='all'):
     """ Filter out sixfold-symmetric images.
 
-    :Parameters:
-        images : 3D array
-        center : list/tuple/1D array
-            Image center pixel coordinates.
-        axis : int | 0
-        rotrange : list/tuple | list(range(-30, 330, 5))
-        lookahead : int | 4
-        pbar : bool | True
-        pbenv : str | 'classic'
-        ret : str | 'all'
+    **Parameters**\n
+    images: 3D array
+        Stack of 2D images.
+    center: list/tuple/1D array
+        Image center pixel coordinates.
+    axis: int | 0
+        Axis to extract images from stack.
+    rotrange: list/tuple | list(range(-30, 330, 5))
+        All rotations tested.
+    lookahead: int | 4
+        Number of points ahead taken into consideration in peak detection.
+    pbar: bool | True
+        Option to turn on/off progress bar.
+    pbenv: str | 'classic'
+        Notebook environment.
+    ret: str | 'all'
+        Option for return ('filtered' returns only filtered images, 'all' returns filtered images and the indices of symmetric images within the stack).
     """
 
     images = np.moveaxis(images, axis, 0)
@@ -420,15 +431,15 @@ def reflectodeform(imbase, refangle, center, axis=0, interp_order=1, **kwargs):
     """ Reflect the image with respect to the symmetry line across the image center
     using deformation field.
 
-    :Parameters:
-        imbase : 2D array
-            Base image.
-        refangle : numeric
-            Reflection angle with respect to the image horizontal axis.
-        center : list/tuple
-            Center coordinates of the image.
-        axis : int | 0
-            Axis to reflect along.
+    **Parameters**\n
+    imbase: 2D array
+        Base image.
+    refangle: numeric
+        Reflection angle with respect to the image horizontal axis.
+    center: list/tuple
+        Center coordinates of the image.
+    axis: int | 0
+        Axis to reflect along.
     """
 
     imbase = np.nan_to_num(imbase)
@@ -496,17 +507,17 @@ def refsym(img, op='nanmax', op_package='numpy', axis=0, pbenv='classic', pbar=T
 def cutedge(image, check_axis=1, boundary='square', ret='cutimage'):
     """ Cutting out the region beyond the edge of an image.
 
-    :Parameters:
-        image : 2D array
-            Image (containing nan or 0 outside the region of interest) before cutting.
-        check_axis : int | 1
-            The long axis for determining the boundary.
-        boundary : str | 'square'
-            :'square': Square image boundary.
-            :'tight': Tightest rectangular image boundary.
-            The shape of the image boundary.
-        ret : str | 'cutimage'
-            Option to specify return quantity ('cutimage', 'cutrange', 'all').
+    **Parameters**\n
+    image: 2D array
+        Image (containing nan or 0 outside the region of interest) before cutting.
+    check_axis: int | 1
+        The long axis for determining the boundary.
+    boundary: str | 'square'
+        ``'square'`` Square image boundary.\n
+        ``'tight'`` Tightest rectangular image boundary.
+        The shape of the image boundary.
+    ret: str | 'cutimage'
+        Option to specify return quantity ('cutimage', 'cutrange', 'all').
     """
 
     image_alt = np.moveaxis(image, check_axis, 0)
@@ -581,9 +592,9 @@ class BrillouinZoner(object):
     def summary(self, rettype='dict'):
         """ A container of truncated band structure and parameters.
 
-        :Parameters:
-            rettype : str | 'dict'
-                Data type of the returned summary (``'dict'`` or ``'list'``).
+        **Parameters**\n
+        rettype: str | 'dict'
+            Data type of the returned summary (``'dict'`` or ``'list'``).
         """
 
         if rettype == 'dict':
@@ -621,9 +632,9 @@ class BrillouinZoner(object):
     def select_slice(self, selector, axis=None):
         """ Select the image slice for landmark detection.
 
-        :Parameters:
-            selector : slice object
-                A slice object for selection of image stacks for feature detection.
+        **Parameters**\n
+        selector: slice object
+            A slice object for selection of image stacks for feature detection.
         """
 
         if axis is not None:
@@ -641,14 +652,22 @@ class BrillouinZoner(object):
         self.landmarks = landmarks
 
     def findlandmarks(self, method='daofind', direction='ccw', center_det='centroidnn', ret=False, **kwargs):
-        """ Determine the landmark locations.
+        """ Determine the landmark locations, further details see ``mpes.analysis.peakdetect2d()``.
 
-        :Parameters:
-            method : str | 'daofind'
-            direction : str | 'ccw'
-            center_det : str | 'centroidnn'
-            ret : bool | False
-            **kwargs : keyword arguments
+        **Parameters**\n
+        method: str | 'daofind'
+            Method for detecting landmarks ('daofind' or 'maxfind').
+        direction: str | 'ccw'
+            Direction to arrange the detected vertices ('cw' for clockwise or 'ccw' for counterclockwise).
+        center_det: str | 'centroidnn'
+            Method to determine the center position.
+        ret: bool | False
+            Option to return the outcome.
+        **kwargs: keyword arguments
+            image: 2D array | ``self.bands[0,...]``
+                Image to extract landmark from.
+            image_ofs: list/tuple | [0, 0, 0, 0]
+                Systematic offsets applied to the detected landmarks.
         """
 
         img = kwargs.pop('image', self.bands[0,...])
@@ -673,8 +692,8 @@ class BrillouinZoner(object):
     def maskgen(self, ret='all', **kwargs):
         """ Generate a mask using given parameters.
 
-        :Parameters:
-            See `fuller.generator.hexmask()`.
+        **Parameters**\n
+            See ``fuller.generator.hexmask()``.
         """
 
         imshape = kwargs.pop('imshape', self.slice.shape)
@@ -683,7 +702,7 @@ class BrillouinZoner(object):
     def resample(self, kvals, band, nx=None, ny=None, ret='all', **kwargs):
         """ Resample the energy band in a finer grid.
 
-        :Parameters:
+        **Parameters**\n
             See ``fuller.utils.interpolate2d()``.
         """
 
@@ -695,20 +714,24 @@ class BrillouinZoner(object):
     def bandcutter(self, nx=None, ny=None, dmean=False, resampled=False, ret=False, **kwargs):
         """ Truncate the band within the first Brillouin zone.
 
-        :Parameters:
-            nx, ny : int, int
-                Pixel numbers of the cut band along the image axes.
-            dmean : bool | False
-                Option to subtract the mean from the band structure.
-            resampled : bool | False
-                Option to resample the energy band in another k-grid.
-            ret : bool | False
-                Specifications for return values.
-            **kwargs : keyword arguments
-                :margins: list/tuple
-                    Four-sided margins for the truncated band structure.
-                :selector: list/slice object/None | None
-                    Selector along the band index axis.
+        **Parameters**\n
+        nx, ny: int, int | None, None
+            Pixel numbers of the cut band along the image axes.
+        dmean: bool | False
+            Option to subtract the mean from the band structure.
+        resampled: bool | False
+            Option to resample the energy band in another k-grid.
+        ret: bool | False
+            Specifications for return values.
+        **kwargs: keyword arguments
+            mask: 2D array | ``self.mask``
+                Mask matrix to apply to image.
+            margins: list/tuple | ``self.margins``
+                Four-sided margins for the truncated band structure.
+            selector: list/slice object/None | None
+                Selector along the band index axis.
+            offsx, offsy: int, int | 0, 0
+                Offsets to a square along x and y directions.
         """
 
         mask = kwargs.pop('mask', self.mask)
@@ -753,13 +776,13 @@ class BrillouinZoner(object):
     def save_data(self, form='h5', save_addr='./bandcuts.h5', **kwargs):
         """ Save truncated band structure data.
 
-        :Parameters:
-            form : str | 'h5'
-                Format of the file to save.
-            save_addr : str | './bandcuts'
-                File-saving address.
-            **kwargs : keyword arguments
-                Additional arguments for the file-saving functions.
+        **Parameters**\n
+        form: str | 'h5'
+            Format of the file to save.
+        save_addr: str | './bandcuts'
+            File-saving address.
+        **kwargs: keyword arguments
+            Additional arguments for the file-saving functions.
         """
 
         if form == 'mat':
@@ -1069,18 +1092,25 @@ class MPESDataGenerator(object):
 def hexpad(img, cvd, edgepad=None, **kwargs):
     """ Symmetrically pad an image in directions perpendicular to the hexagonal edges.
     
-    :Parameters:
-        img : 2d array
-            Image to pad.
-        cvd : numeric
-            Center-vertex distance of the hexagon.
-        edgepad : list/tuple
-            Number of padded pixels on the edge of the image, ((left, right), (top, bottom)).
-        **kwargs : keyword arguments
+    **Parameters**\n
+    img: 2d array
+        Image to pad.
+    cvd: numeric
+        Center-vertex distance of the hexagon.
+    edgepad: list/tuple
+        Number of padded pixels on the edge of the image, ((left, right), (top, bottom)).
+    **kwargs: keyword arguments
+        op, op_package: str, str | 'nanmax', 'numpy'
+            Namestring of the function and package using for image padding (package.function will be executed and applied when merging the original and the paddings).
+        mask: str | 'numpy'
+            Mask applied to the unpadded image before merging with the paddings (used to suppress the potential discontinuities of boundary pixels).
+        edgevals: numeric | ``np.nan```
+            Edge values outside the boundary of the mask.
+
         
-    :Return:
-        padded_view : 2d array
-            Rectangular image after padding hexagonally.
+    **Return**\n
+    padded_view: 2d array
+        Rectangular image after padding hexagonally.
     """
     
     op = kwargs.pop('op', 'nanmax')
@@ -1109,22 +1139,22 @@ def hexpad(img, cvd, edgepad=None, **kwargs):
 def hextiler(image, final_size, cvd, method='geometric', op='nanmax', op_package='numpy', ret='final'):
     """ Tiling the image plane with hexagonal patterns.
 
-    :Parameters:
-        image : 2D array
-            Base image before hexagonal tiling.
-        final_size : list/tuple
-            Final size of the padded image (row_size, colum_size).
-        cvd : numeric
-            Center-vertex distance.
-        method : str | 'geometric'
-            Method for hexagonal tiling.
-        op : str | 'nanmax'
-            Namestring of the operator.
-        op_package : str | 'numpy'
-            Namestring of the software package to obtain the operator.
-        ret : str | 'final'
-            :final: Return only the final result.
-            :all: Return results from all intermediate steps.
+    **Parameters**\n
+    image: 2D array
+        Base image before hexagonal tiling.
+    final_size: list/tuple
+        Final size of the padded image (row_size, colum_size).
+    cvd: numeric
+        Center-vertex distance.
+    method: str | 'geometric'
+        Method for hexagonal tiling.
+    op: str | 'nanmax'
+        Namestring of the operator.
+    op_package: str | 'numpy'
+        Namestring of the software package to obtain the operator.
+    ret: str | 'final'
+        final: Return only the final result.
+        all: Return results from all intermediate steps.
     """
 
     # Symmetric padding
@@ -1169,25 +1199,25 @@ def hextiler(image, final_size, cvd, method='geometric', op='nanmax', op_package
 def bandstack(data, baxis=2, nvb=None, ncb=None, gap_id=None, pbar=True, pbenv='classic', **kwargs):
     """ Construct a stack of energy bands after symmetrization.
 
-    :Parameters:
-        data : 3D array
-            Patches of band structure data with the axes in any ordering of (kx, ky, band_index).
-        baxis : int | 2
-            Axis of the band index.
-        nvb, ncb : int, int | None, None
-            Number of valence and conduction bands to extract.
-        gap_id : int | None
-            Index number of the topmost valence band or bottommost conduction band,
-            depending on the stacking order in the data variable.
-        pbar : bool | True
-            Option to turn on/off the progress bar in computation.
-        pbenv : str | 'classic'
-            Progress bar environment ('classic' or 'notebook').
-        **kwargs : keyword arguments
+    **Parameters**\n
+    data: 3D array
+        Patches of band structure data with the axes in any ordering of (kx, ky, band_index).
+    baxis: int | 2
+        Axis of the band index.
+    nvb, ncb: int, int | None, None
+        Number of valence and conduction bands to extract.
+    gap_id: int | None
+        Index number of the topmost valence band or bottommost conduction band,
+        depending on the stacking order in the data variable.
+    pbar: bool | True
+        Option to turn on/off the progress bar in computation.
+    pbenv: str | 'classic'
+        Progress bar environment ('classic' or 'notebook').
+    **kwargs: keyword arguments
 
-    :Returns:
-        vbands, cbands : 3D array, 3D array
-            Stacked valence and conduction bands after symmetrization.
+    **Returns**\n
+    vbands, cbands: 3D array, 3D array
+        Stacked valence and conduction bands after symmetrization.
     """
 
     nvb, ncb, gap_id = int(nvb), int(ncb), int(gap_id)
@@ -1222,11 +1252,11 @@ def bandstack(data, baxis=2, nvb=None, ncb=None, gap_id=None, pbar=True, pbenv='
 def restore(img, **kwargs):
     """ Restore an image with irregularly distributed missing values (as nan's).
 
-    :Parameters:
-        img : nd array
-            Multidimensional image array with missing data (as nan's).
-        **kwargs : keyword arguments
-            Additional arguments supplied to ``scipy.interpolate.griddata()``.
+    **Parameters**\n
+    img: nd array
+        Multidimensional image array with missing data (as nan's).
+    **kwargs: keyword arguments
+        Additional arguments supplied to ``scipy.interpolate.griddata()``.
     """
     
     imgrst = img.copy()

@@ -19,8 +19,7 @@ class MrfRec(object):
     def __init__(self, E, kx=None, ky=None, I=None, E0=None, eta=0.1, includeCurv=False, etaCurv=0.1):
         """ Initialize the class.
 
-        **Parameters**
-
+        **Parameters**\n
         E: 1D array | None
             Energy as numpy array.
         kx: 1D array | None
@@ -88,8 +87,7 @@ class MrfRec(object):
     def fromFile(cls, fileName, E0=None, eta=0.1):
         """ Initialize reconstruction object from h5 file, returns econstruction object initialized from h5 file.
         
-        **Parameters**
-        
+        **Parameters**\n        
         fileName: str
             Path to the file as string
         E0: numeric | None
@@ -118,13 +116,11 @@ class MrfRec(object):
     def loadBandsMat(cls, path):
         """ Load bands from mat file in numpy matrix.
         
-        **Parameters**
-
+        **Parameters**\n
         path: str
             Path to the mat file.
         
-        **Return**
-
+        **Return**\n
             Tuple of momentum vectors and energy grid.
         """
 
@@ -146,8 +142,7 @@ class MrfRec(object):
     def initializeBand(self, kx, ky, Eb, offset=0., flipKAxes=False, kScale=1., interp_method='linear'):
         """ Set E0 according to reference band, e.g. DFT calculation.
 
-        **Parameters**
-
+        **Parameters**\n
         kx, ky: 1D array, 1D array
             Momentum values for data along x and y directions.
         Eb: 1D array
@@ -202,8 +197,7 @@ class MrfRec(object):
     def smoothenI(self, sigma=(1., 1., 1.)):
         """ Apply a multidimensional Gaussian filter to the band mapping data (intensity values).
         
-        **Parameters**
-
+        **Parameters**\n
         sigma: list/tuple | (1, 1, 1)
             The vector containing the Gaussian filter standard deviations in pixel space for kx, ky, and E.
         """
@@ -217,8 +211,7 @@ class MrfRec(object):
     def normalizeI(self, kernel_size=None, n_bins=128, clip_limit=0.01, use_gpu=True, threshold=1e-6):
         """ Normalizes the intensity using multidimensional CLAHE (MCLAHE).
 
-        **Parameters**
-
+        **Parameters**\n
         kernel_size: list/tuple | None
             Tuple of kernel sizes, 1/8 of dimension lengths of x if None.
         n_bins: int | 128
@@ -254,8 +247,7 @@ class MrfRec(object):
     def symmetrizeI(self, mirror=True, rotational=True, rotational_order=6):
         """ Symmetrize I with respect to reflection along x and y axis.
 
-        **Parameters**
-
+        **Parameters**\n
         mirror: bool | True
             Flag, if True mirror symmetrization is done wrt planes perpendicular to kx and ky axis.
         rotational: bool | True
@@ -296,13 +288,12 @@ class MrfRec(object):
     def iter_seq(self, num_epoch=1, updateLogP=False, disable_tqdm=False):
         """ Iterate band structure reconstruction process.
 
-        **Parameters**
-
-        num:
+        **Parameters**\n
+        num_epoch: int | 1
             Number of iterations.
-        updateLogP:
+        updateLogP: bool | False
             Flag, if true logP is updated every half epoch.
-        disable_tqdm:
+        disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization.
         """
 
@@ -354,8 +345,7 @@ class MrfRec(object):
     def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
         """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
-        **Parameters**
-
+        **Parameters**\n
         num_epoch: int | 1
             Number of iteration epochs.
         updateLogP: bool | False
@@ -431,15 +421,14 @@ class MrfRec(object):
     def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
         """ Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
 
-        **Parameters**
-
-        num_epoch:
+        **Parameters**\n
+        num_epoch: int | 1
             Number of iteration epochs.
-        updateLogP:
+        updateLogP: bool | False
             Flag, if true logP is updated every half epoch.
-        use_gpu:
+        use_gpu: bool | True
             Flag, if true gpu is used for computations if available.
-        disable_tqdm:
+        disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization.
         """
 
@@ -574,25 +563,24 @@ class MrfRec(object):
     def plotI(self, kx=None, ky=None, E=None, cmapName='viridis', plotBand=False, plotBandInit=False, bandColor='r', initColor='k', plotSliceInBand=False, figsize=[9, 9], equal_axes=False):
         """ Plot the intensity against k and E.
 
-        **Parameters**
-
-        kx, ky: 
+        **Parameters**\n
+        kx, ky: 1D array, 1D array | None, None
             kx, ky to plot respective slice.
-        E: 
+        E: 1D array | None
             E to plot respective slice.
-        plotBand: 
+        plotBand: bool | False
             Flag, if true current electronic band is plotted in image.
-        plotBandInit: 
+        plotBandInit: bool | False
             Flag, if true E0 is plotted in image.
-        bandColor: 
+        bandColor: str | 'r'
             Color string for band for matplotlib.pyplot function.
-        initColor: 
+        initColor: str | 'k'
             Color string for initial band for matplotlib.pyplot function.
-        plotSliceInBand: 
+        plotSliceInBand: bool | False
             Flag, if true plots band as colormesh and corresponding slice in red.
-        figsize:
+        figsize: list/tuple | [9, 9]
             size of the figure produced.
-        equal_axes:
+        equal_axes: bool | False
             use same scaling for both axes.
         """
 
@@ -672,8 +660,7 @@ class MrfRec(object):
     def plotBands(self, surfPlot=False, cmapName='viridis', figsize=[9, 9], equal_axes=False):
         """ Plot reconstructed electronic band structure.
 
-        **Parameters**
-
+        **Parameters**\n
         surfPlot: bool | False
             Flag, if true a surface plot is shown in addition.
         cmapName: str | 'viridis'
@@ -742,8 +729,7 @@ class MrfRec(object):
     def saveBand(self, fileName, hyperparams=True, index=None):
         """ Save the reconstructed electronic band and associated optimization paramters to file.
 
-        **Parameters**
-
+        **Parameters**\n
         fileName: str
             Name of the file to save data to.
         hyperparams: bool | True
@@ -772,8 +758,7 @@ class MrfRec(object):
     def loadBand(self, Eb=None, fileName=None, use_as_init=True):
         """ Load bands in reconstruction object, either using numpy matrix or directly from file.
 
-        **Parameters**
-
+        **Parameters**\n
         Eb: numpy array | None
             Energy values of an electronic band.
         fileName: str | None
@@ -804,15 +789,13 @@ class MrfRec(object):
     def __initSquMat(self, n, el=None):
         """ Returns as square matrix of size nxn with el as element in each element.
 
-        **Parameters**
-
+        **Parameters**\n
         n: int
             Size of the square matrix.
         el: numeric | None
             Values of each element.
         
-        **Return**
-        
+        **Return**\n        
             Square matrix of size nxn with el as element in each element.
         """
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Band structure reconstruction (fuller.mrfRec) &mdash; fuller 0.9.2 documentation</title>
+  <title>Band structure reconstruction (fuller.mrfRec) &mdash; fuller 0.9.8 documentation</title>
   
 
   
@@ -33,7 +33,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="fuller 0.9.2 documentation" href="index.html"/>
+    <link rel="top" title="fuller 0.9.8 documentation" href="index.html"/>
         <link rel="next" title="Utility functions (fuller.utils)" href="fuller_utils.html"/>
         <link rel="prev" title="Band structure quantification (fuller.metrics)" href="fuller_metrics.html"/> 
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.9.2
+                0.9.8
               </div>
             
           
@@ -258,13 +258,13 @@
 <dd><p>Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.</p>
 <p><strong>Parameters</strong></p>
 <dl class="simple">
-<dt>num_epoch:</dt><dd><p>Number of iteration epochs.</p>
+<dt>num_epoch: int | 1</dt><dd><p>Number of iteration epochs.</p>
 </dd>
-<dt>updateLogP:</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
+<dt>updateLogP: bool | False</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
 </dd>
-<dt>use_gpu:</dt><dd><p>Flag, if true gpu is used for computations if available.</p>
+<dt>use_gpu: bool | True</dt><dd><p>Flag, if true gpu is used for computations if available.</p>
 </dd>
-<dt>disable_tqdm:</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
+<dt>disable_tqdm: bool | False</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -275,11 +275,11 @@
 <dd><p>Iterate band structure reconstruction process.</p>
 <p><strong>Parameters</strong></p>
 <dl class="simple">
-<dt>num:</dt><dd><p>Number of iterations.</p>
+<dt>num_epoch: int | 1</dt><dd><p>Number of iterations.</p>
 </dd>
-<dt>updateLogP:</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
+<dt>updateLogP: bool | False</dt><dd><p>Flag, if true logP is updated every half epoch.</p>
 </dd>
-<dt>disable_tqdm:</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
+<dt>disable_tqdm: bool | False</dt><dd><p>Flag, it true no progress bar is shown during optimization.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -356,23 +356,23 @@
 <dd><p>Plot the intensity against k and E.</p>
 <p><strong>Parameters</strong></p>
 <dl class="simple">
-<dt>kx, ky: </dt><dd><p>kx, ky to plot respective slice.</p>
+<dt>kx, ky: 1D array, 1D array | None, None</dt><dd><p>kx, ky to plot respective slice.</p>
 </dd>
-<dt>E: </dt><dd><p>E to plot respective slice.</p>
+<dt>E: 1D array | None</dt><dd><p>E to plot respective slice.</p>
 </dd>
-<dt>plotBand: </dt><dd><p>Flag, if true current electronic band is plotted in image.</p>
+<dt>plotBand: bool | False</dt><dd><p>Flag, if true current electronic band is plotted in image.</p>
 </dd>
-<dt>plotBandInit: </dt><dd><p>Flag, if true E0 is plotted in image.</p>
+<dt>plotBandInit: bool | False</dt><dd><p>Flag, if true E0 is plotted in image.</p>
 </dd>
-<dt>bandColor: </dt><dd><p>Color string for band for matplotlib.pyplot function.</p>
+<dt>bandColor: str | ‘r’</dt><dd><p>Color string for band for matplotlib.pyplot function.</p>
 </dd>
-<dt>initColor: </dt><dd><p>Color string for initial band for matplotlib.pyplot function.</p>
+<dt>initColor: str | ‘k’</dt><dd><p>Color string for initial band for matplotlib.pyplot function.</p>
 </dd>
-<dt>plotSliceInBand: </dt><dd><p>Flag, if true plots band as colormesh and corresponding slice in red.</p>
+<dt>plotSliceInBand: bool | False</dt><dd><p>Flag, if true plots band as colormesh and corresponding slice in red.</p>
 </dd>
-<dt>figsize:</dt><dd><p>size of the figure produced.</p>
+<dt>figsize: list/tuple | [9, 9]</dt><dd><p>size of the figure produced.</p>
 </dd>
-<dt>equal_axes:</dt><dd><p>use same scaling for both axes.</p>
+<dt>equal_axes: bool | False</dt><dd><p>use same scaling for both axes.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -469,7 +469,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.9.2',
+            VERSION:'0.9.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
