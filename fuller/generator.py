@@ -170,16 +170,21 @@ def projectionfilter(data, nterms=None, bases=None, npix=None, basis_type='Zerni
                     outside='nan', basis_kwds={}):
     """ Filtering reconstructed band structure using orthogonal polynomial approximation.
 
-    :Parameters:
-        data : 2D array
-        nterms : int | None
-            Number of terms.
-        bases : 3D array | None
-            Bases for decomposition.
-        npix : int | None
-        basis_type : str | 'Zernike'
-        outside : numeric/str | 'nan'
-        basis_kwds : dictionary | {}
+    **Parameters**\n
+    data: 2D array
+        Band dispersion in 2D to filter.
+    nterms: int | None
+        Number of terms.
+    bases: 3D array | None
+        Bases for decomposition.
+    npix: int | None
+        Size (number of pixels) in one direction of each basis term.
+    basis_type: str | 'Zernike'
+        Type of basis to use for filtering.
+    outside: numeric/str | 'nan'
+        Values to fill for regions outside the Brillouin zone boundary.
+    basis_kwds: dictionary | {}
+        Keywords for basis generator (see `poppy.zernike.hexike_basis()` if hexagonal Zernike polynomials are used).
     """
 
     nterms = int(nterms)
@@ -1104,7 +1109,7 @@ def hexpad(img, cvd, edgepad=None, **kwargs):
             Namestring of the function and package using for image padding (package.function will be executed and applied when merging the original and the paddings).
         mask: str | 'numpy'
             Mask applied to the unpadded image before merging with the paddings (used to suppress the potential discontinuities of boundary pixels).
-        edgevals: numeric | ``np.nan```
+        edgevals: numeric | ``np.nan``
             Edge values outside the boundary of the mask.
 
         

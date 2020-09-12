@@ -625,7 +625,7 @@ of the generated mask is at least that of the smallest dimension of the referenc
 </dd>
 <dt>mask: str | ‘numpy’</dt><dd><p>Mask applied to the unpadded image before merging with the paddings (used to suppress the potential discontinuities of boundary pixels).</p>
 </dd>
-<dt>edgevals: numeric | <code class="docutils literal notranslate"><span class="pre">np.nan`</span></code></dt><dd><p>Edge values outside the boundary of the mask.</p>
+<dt>edgevals: numeric | <code class="docutils literal notranslate"><span class="pre">np.nan</span></code></dt><dd><p>Edge values outside the boundary of the mask.</p>
 </dd>
 </dl>
 </dd>
@@ -677,21 +677,21 @@ all: Return results from all intermediate steps.</p>
 <dt id="fuller.generator.projectionfilter">
 <code class="sig-prename descclassname">fuller.generator.</code><code class="sig-name descname">projectionfilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">nterms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bases</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">npix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">basis_type</span><span class="o">=</span><span class="default_value">'Zernike'</span></em>, <em class="sig-param"><span class="n">outside</span><span class="o">=</span><span class="default_value">'nan'</span></em>, <em class="sig-param"><span class="n">basis_kwds</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuller.generator.projectionfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filtering reconstructed band structure using orthogonal polynomial approximation.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p>data : 2D array
-nterms : int | None</p>
-<blockquote>
-<div><p>Number of terms.</p>
-</div></blockquote>
+<p><strong>Parameters</strong></p>
 <dl class="simple">
-<dt>bases<span class="classifier">3D array | None</span></dt><dd><p>Bases for decomposition.</p>
+<dt>data: 2D array</dt><dd><p>Band dispersion in 2D to filter.</p>
 </dd>
-</dl>
-<p>npix : int | None
-basis_type : str | ‘Zernike’
-outside : numeric/str | ‘nan’
-basis_kwds : dictionary | {}</p>
+<dt>nterms: int | None</dt><dd><p>Number of terms.</p>
+</dd>
+<dt>bases: 3D array | None</dt><dd><p>Bases for decomposition.</p>
+</dd>
+<dt>npix: int | None</dt><dd><p>Size (number of pixels) in one direction of each basis term.</p>
+</dd>
+<dt>basis_type: str | ‘Zernike’</dt><dd><p>Type of basis to use for filtering.</p>
+</dd>
+<dt>outside: numeric/str | ‘nan’</dt><dd><p>Values to fill for regions outside the Brillouin zone boundary.</p>
+</dd>
+<dt>basis_kwds: dictionary | {}</dt><dd><p>Keywords for basis generator (see <cite>poppy.zernike.hexike_basis()</cite> if hexagonal Zernike polynomials are used).</p>
 </dd>
 </dl>
 </dd></dl>
