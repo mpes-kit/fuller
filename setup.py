@@ -22,6 +22,7 @@ setup(
     version=__version__,
     description='3D electronic band structure reconstruction from photoemission band mapping',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/mpes-kit/fuller',
     download_url='https://github.com/mpes-kit/fuller/tarball/' + __version__,
     license='BSD',
