@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import axes3d
 
 
 # Reconstruction object
-class ReconstructionMRF2d:
+class ReconstructionMRF2d(object):
     def __init__(self, k, E, I=None, E0=None, sigma=0.1):
         """
         Initialize object

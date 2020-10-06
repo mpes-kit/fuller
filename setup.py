@@ -7,7 +7,7 @@ __version__ = '0.9.8'
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 # get the dependencies and installs
@@ -20,12 +20,12 @@ dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startsw
 setup(
     name='fuller',
     version=__version__,
-    description='3D electronic band structure reconstruction from photoemission band mapping',
-    long_description=long_description,
+    description='Integrated computational framework for electronic band structure reconstruction and parametrization',
     long_description_content_type='text/markdown',
+    long_description=long_description,
     url='https://github.com/mpes-kit/fuller',
     download_url='https://github.com/mpes-kit/fuller/tarball/' + __version__,
-    license='BSD',
+    license='MIT',
     classifiers=[
       'Development Status :: 3 - Alpha',
       'Intended Audience :: Developers',
