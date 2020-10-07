@@ -1,5 +1,5 @@
 # fuller
-![License](https://img.shields.io/github/license/mpes-kit/fuller?color=lightgrey)
+![License](https://img.shields.io/github/license/mpes-kit/fuller?color=lightgrey) ![PyPI Version](https://badge.fury.io/py/fuller.svg) ![Downloads](https://pepy.tech/badge/fuller)
 
 Integrated computational framework for electronic band structure reconstruction and parametrization, powered by probabilistic machine learning
 
