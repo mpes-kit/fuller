@@ -1,4 +1,6 @@
 # fuller
+![License](https://img.shields.io/github/license/mpes-kit/fuller?color=lightgrey)
+
 Integrated computational framework for electronic band structure reconstruction and parametrization, powered by probabilistic machine learning
 
 ## Introduction
@@ -19,6 +21,12 @@ Alternatively, download the repository and run
 
 ```
 python setup.py install
+```
+
+Install directly from PyPI
+
+```
+pip install fuller
 ```
 
 ### Requirements
