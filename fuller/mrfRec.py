@@ -16,7 +16,7 @@ class MrfRec(object):
     """ Class for reconstructing band structure from band mapping data.
     """
 
-    def __init__(self, E, kx=None, ky=None, I=None, E0=None, eta=0.1, includeCurv=False, etaCurv=0.1):
+    def __init__(self, E, kx=None, ky=None, I=None, E0=None):
         """ Initialize the class.
 
         **Parameters**\n
@@ -30,12 +30,6 @@ class MrfRec(object):
             Measured intensity wrt momentum (rows) and energy (columns), generated if None.
         E0: numeric | None
             Initial guess for band structure energy values, if None mean of E is taken.
-        eta: numeric | 0.1 
-            Standard deviation of neighbor interaction term
-        includeCurv: bool | False
-            Flag, if true curvature term is included during optimization.
-        etaCurv: numeric | 0.1
-            Standard deviation of curvature term.
         """
 
         # Check input
@@ -57,10 +51,6 @@ class MrfRec(object):
         # Shift I because of log
         self.I -= np.min(self.I)
         self.I += np.min(self.I[self.I > 0])
-        # Parameter for reconstruction
-        self.eta = eta
-        self.includeCurv = includeCurv
-        self.etaCurv = etaCurv
 
         # Generate I if needed
         if I is None:
@@ -111,7 +101,6 @@ class MrfRec(object):
         # Construct object
         return cls(E, kx, ky, I=I, E0=E0, eta=eta)
 
-
     @classmethod
     def loadBandsMat(cls, path):
         """ Load bands from mat file in numpy matrix.
@@ -137,7 +126,6 @@ class MrfRec(object):
         evb = data['evb']
 
         return (kx, ky, evb)
-
 
     def initializeBand(self, kx, ky, Eb, offset=0., flipKAxes=False, kScale=1., interp_method='linear'):
         """ Set E0 according to reference band, e.g. DFT calculation.
@@ -193,6 +181,28 @@ class MrfRec(object):
         # Reinitialize logP
         self.delHist()
 
+    def set_model_params(self, eta=0.1, includeCurv=False, etaCurv=0.1):
+        """ Set the probabilistic graphical model parameter.
+        
+        **Parameters**\n
+        eta: numeric | 0.1 
+            Standard deviation of neighbor interaction term.
+        includeCurv: bool | False
+            Flag, if true curvature term is included during optimization.
+        etaCurv: numeric | 0.1
+            Standard deviation of curvature term.
+        """
+        
+        # Parameter for reconstruction
+        self.eta = eta
+        self.includeCurv = includeCurv
+        self.etaCurv = etaCurv
+
+    def distributed_tuning(self, band_ind, offsets, shifts):
+        """
+        """
+
+        pass
 
     def smoothenI(self, sigma=(1., 1., 1.)):
         """ Apply a multidimensional Gaussian filter to the band mapping data (intensity values).
@@ -206,7 +216,6 @@ class MrfRec(object):
 
         # Reinitialize logP
         self.delHist()
-
 
     def normalizeI(self, kernel_size=None, n_bins=128, clip_limit=0.01, use_gpu=True, threshold=1e-6):
         """ Normalizes the intensity using multidimensional CLAHE (MCLAHE).
@@ -243,7 +252,6 @@ class MrfRec(object):
         # Update normalization flag
         self.I_normalized = True
 
-
     def symmetrizeI(self, mirror=True, rotational=True, rotational_order=6):
         """ Symmetrize I with respect to reflection along x and y axis.
 
@@ -278,12 +286,6 @@ class MrfRec(object):
 
         # Reinitialize logP
         self.delHist()
-
-
-    def generateI(self):
-
-        pass
-
 
     def iter_seq(self, num_epoch=1, updateLogP=False, disable_tqdm=False):
         """ Iterate band structure reconstruction process.
@@ -341,7 +343,6 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
-
     def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
         """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
@@ -349,13 +350,13 @@ class MrfRec(object):
         num_epoch: int | 1
             Number of iteration epochs.
         updateLogP: bool | False
-            Flag, if true logP is updated every half epoch
+            Flag, if true logP is updated every half epoch.
         use_gpu: bool | True
-            Flag, if true gpu is used for computations if available
+            Flag, if true gpu is used for computations if available.
         disable_tqdm: bool | False
-            Flag, it true no progress bar is shown during optimization
+            Flag, it true no progress bar is shown during optimization.
         graph_reset: bool | True
-            Flag, if true Tensorflow graph is reset after computation to reduce memory demand
+            Flag, if true Tensorflow graph is reset after computation to reduce memory demand.
         """
 
         # Preprocessing
@@ -416,7 +417,6 @@ class MrfRec(object):
         self.epochsDone += num_epoch
         if graph_reset:
             tf.reset_default_graph()
-
 
     def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
         """ Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
@@ -535,13 +535,11 @@ class MrfRec(object):
         if graph_reset:
             tf.reset_default_graph()
 
-
     def getEb(self):
         """ Retrieve the energy values of the reconstructed band.
         """
 
         return self.E[self.indEb].copy()
-
 
     def getLogP(self):
         """ Retrieve the log likelihood of the electronic band structure given the model.
@@ -558,7 +556,6 @@ class MrfRec(object):
             logP -= np.sum((Eb[:, 0:(self.lengthKy - 1)] - Eb[:, 1:self.lengthKy]) ** 2) / (2 * self.eta ** 2)
 
         return logP
-
 
     def plotI(self, kx=None, ky=None, E=None, cmapName='viridis', plotBand=False, plotBandInit=False, bandColor='r', initColor='k', plotSliceInBand=False, figsize=[9, 9], equal_axes=False):
         """ Plot the intensity against k and E.
@@ -656,7 +653,6 @@ class MrfRec(object):
                 else:
                     plt.plot(self.kx, np.array(self.lengthKx * [self.ky[indKy]]), 'r', linewidth=2.0)
 
-
     def plotBands(self, surfPlot=False, cmapName='viridis', figsize=[9, 9], equal_axes=False):
         """ Plot reconstructed electronic band structure.
 
@@ -702,7 +698,6 @@ class MrfRec(object):
             for tick in ax.zaxis.get_major_ticks():
                 tick.label.set_fontsize(20)
 
-
     def plotLoss(self):
         """ Plot the change of the negative log likelihood.
         """
@@ -717,14 +712,12 @@ class MrfRec(object):
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
 
-
     def delHist(self):
         """ Deletes the training history by resetting delta log(p) to its initial value.
         """
 
         self.logP = np.array([self.getLogP()])
         self.epochsDone = 0
-
 
     def saveBand(self, fileName, hyperparams=True, index=None):
         """ Save the reconstructed electronic band and associated optimization paramters to file.
@@ -753,7 +746,6 @@ class MrfRec(object):
                 file.create_dataset('/hyper/k_scale', data=self.kscale)
                 file.create_dataset('/hyper/E_offset', data=self.offset)
                 file.create_dataset('/hyper/nn_eta', data=self.eta)
-
 
     def loadBand(self, Eb=None, fileName=None, use_as_init=True):
         """ Load bands in reconstruction object, either using numpy matrix or directly from file.
@@ -784,7 +776,6 @@ class MrfRec(object):
 
             # Reinitialize logP
             self.delHist()
-
 
     def __initSquMat(self, n, el=None):
         """ Returns as square matrix of size nxn with el as element in each element.
