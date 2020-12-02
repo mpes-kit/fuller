@@ -34,7 +34,7 @@ setup(
     keywords='',
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
-    author=['Vincent Stimper', 'R. Patrick Xian'],
+    author='Vincent Stimper, R. Patrick Xian',
     install_requires=install_requires,
     dependency_links=dependency_links,
     author_email=''

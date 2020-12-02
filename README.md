@@ -6,7 +6,7 @@ Integrated computational framework for electronic band structure reconstruction 
 ## Introduction
 
 This Python package comprises a set of tools to reconstruct and parametrize the electronic band structure (EBS) from photoemission spectroscopy data. It implements the Markov Random Field model introduced in
-[Xian & Stimper et al. (2020)](https://arxiv.org/abs/2005.10210) in TensorFlow. 
+[Xian & Stimper et al. (2020)](https://arxiv.org/abs/2005.10210) in TensorFlow.
 
 
 ## Methods of installation
