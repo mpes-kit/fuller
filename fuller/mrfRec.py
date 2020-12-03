@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .generator import rotosymmetrize
+from . import utils as u
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -78,17 +79,26 @@ class MrfRec(object):
     @property
     def lengthKx(self):
         
-        return self.kx.size
+        try:
+            return self.kx.size
+        except:
+            return None
 
     @property
     def lengthKy(self):
 
-        return self.ky.size
+        try:
+            return self.ky.size
+        except:
+            return None
 
     @property
     def lengthE(self):
 
-        return self.E.size
+        try:
+            return self.E.size
+        except:
+            return None
 
     @classmethod
     def fromFile(cls, fileName, E0=None, eta=0.1):
@@ -219,7 +229,7 @@ class MrfRec(object):
         self.indEb = ind1d.reshape(self.E0.shape)
         self.indE0 = self.indEb.copy()
 
-        # Reinitialize logP
+        # Re-initialize logP
         self.delHist()
 
     def set_model_params(self, eta=0.1, includeCurv=False, etaCurv=0.1):
@@ -602,10 +612,10 @@ class MrfRec(object):
         n_cpu = mp.cpu_count()
 
         # Construct list of arguments
-        process_args = tuple(it.product(band_ind, offsets, etas, method, niter))
+        process_args = tuple(it.product(offsets, etas, method, niter))
         ntasks = len(process_args)
         n_workers = kwargs.pop('nworker', n_cpu)
-        chunk_size = kwargs.pop('chunksize', ntasks/n_workers)
+        chunk_size = kwargs.pop('chunksize', u.intnz(ntasks/n_workers))
 
         # Distribute fitting tasks to processors
         if backend == 'sync':
@@ -626,7 +636,7 @@ class MrfRec(object):
 
         return recon_bands
 
-    def getEb(self, inds=self.indEb):
+    def getEb(self, inds):
         """ Retrieve the energy values of the reconstructed band.
         """
 
@@ -640,7 +650,7 @@ class MrfRec(object):
         indKx, indKy = np.meshgrid(np.arange(self.lengthKx), np.arange(self.lengthKy), indexing='ij')
         logP = np.sum(np.log(self.I[indKx, indKy, self.indEb]))
         # Interaction terms
-        Eb = self.getEb()
+        Eb = self.getEb(self.indEb)
         if self.lengthKx > 1:
             logP -= np.sum((Eb[0:(self.lengthKx - 1), :] - Eb[1:self.lengthKx, :]) ** 2) / (2 * self.eta ** 2)
         if self.lengthKy > 1:
@@ -678,7 +688,7 @@ class MrfRec(object):
             x, y = np.meshgrid(self.ky, self.E)
             z = np.transpose(self.I[indKx, :, :])
             lab = ['$k_y\,\,(\AA^{-1})$', '$E\,\,(eV)$']
-            Eb = self.getEb()
+            Eb = self.getEb(self.indEb)
             E0 = self.E[self.indE0].copy()
             bandX = self.ky
             bandY = Eb[indKx, :]
@@ -688,7 +698,7 @@ class MrfRec(object):
             x, y = np.meshgrid(self.kx, self.E)
             z = np.transpose(self.I[:, indKy, :])
             lab = ['$k_x\,\,(\AA^{-1})$', '$E\,\,(eV)$']
-            Eb = self.getEb()
+            Eb = self.getEb(self.indEb)
             E0 = self.E[self.indE0].copy()
             bandX = self.kx
             bandY = Eb[:, indKy]
@@ -728,7 +738,7 @@ class MrfRec(object):
             if plotSliceInBand:
                 x, y = np.meshgrid(self.kx, self.ky, indexing='ij')
                 plt.figure()
-                plt.pcolormesh(x, y, self.getEb())
+                plt.pcolormesh(x, y, self.getEb(self.indEb))
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
                 plt.xlabel('$k_x\,\,(\AA^{-1})$', fontsize=24)
@@ -764,7 +774,7 @@ class MrfRec(object):
         plt.rcParams['figure.figsize'] = figsize
         plt.figure()
         cmap = plt.get_cmap(cmapName)
-        plt.pcolormesh(x, y, self.getEb(), cmap=cmap)
+        plt.pcolormesh(x, y, self.getEb(self.indEb), cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
         plt.xlabel('$k_x\,\,(\AA^{-1})$', fontsize=24)
@@ -780,7 +790,7 @@ class MrfRec(object):
         if surfPlot:
             fig = plt.figure()
             ax = fig.gca(projection='3d')
-            ax.plot_surface(x, y, np.transpose(self.getEb()))
+            ax.plot_surface(x, y, np.transpose(self.getEb(self.indEb)))
             ax.set_xlabel('$k_x\,\,(\AA^{-1})$', fontsize=24)
             ax.set_ylabel('$k_y\,\,(\AA^{-1})$', fontsize=24)
             ax.set_zlabel('$E\,\,(eV)$', fontsize=24)
@@ -826,7 +836,7 @@ class MrfRec(object):
             file.create_dataset('/axes/kx', data=self.kx)
             file.create_dataset('/axes/ky', data=self.ky)
             file.create_dataset('/bands/Einit', data=self.E0)
-            file.create_dataset('/bands/Eb', data=self.getEb())
+            file.create_dataset('/bands/Eb', data=self.getEb(self.indEb))
 
             if hyperparams:
                 if index is None:

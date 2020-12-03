@@ -523,3 +523,14 @@ def trim_2d_edge(arr, edges, axes=(0, 1)):
     trimmed = np.moveaxis(trimmed, (0, 1), axes)
     
     return trimmed
+
+
+def intnz(num):
+    """ Output an integer at least larger than 1.
+    """
+
+    num = abs(num)
+    if num < 1:
+        return 1
+    else:
+        return np.rint(num).astype('int')
