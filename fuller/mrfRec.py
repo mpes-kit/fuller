@@ -7,8 +7,14 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import h5py
-from scipy import io, interpolate, ndimage
+import itertools as it
+from scipy import io as sio, interpolate, ndimage
+from hdfio import dict_io as hdio
 from tqdm import tqdm
+try:
+    import parmap as pm
+except:
+    pass
 import warnings as wn
 
 
@@ -44,9 +50,6 @@ class MrfRec(object):
         self.kx = kx.copy()
         self.ky = ky.copy()
         self.E = E.copy()
-        self.lengthKx = kx.size
-        self.lengthKy = ky.size
-        self.lengthE = E.size
         self.I = I
         # Shift I because of log
         self.I -= np.min(self.I)
@@ -72,6 +75,20 @@ class MrfRec(object):
         # Set normalization flag
         self.I_normalized = False
 
+    @property
+    def lengthKx(self):
+        
+        return self.kx.size
+
+    @property
+    def lengthKy(self):
+
+        return self.ky.size
+
+    @property
+    def lengthE(self):
+
+        return self.E.size
 
     @classmethod
     def fromFile(cls, fileName, E0=None, eta=0.1):
@@ -101,33 +118,53 @@ class MrfRec(object):
         # Construct object
         return cls(E, kx, ky, I=I, E0=E0, eta=eta)
 
-    @classmethod
-    def loadBandsMat(cls, path):
+    # @classmethod
+    def loadBandInit(self, path, form='mat', inplace=False, ret=True):
         """ Load bands from mat file in numpy matrix.
         
         **Parameters**\n
         path: str
             Path to the mat file.
+        form: str | 'mat'
+            Format of the file containing band structure initialization.
+        inplace: bool | False
+            Option to assign the loaded data to class attributes.
+        ret: bool | True
+            Option to return the loaded data.
         
         **Return**\n
-            Tuple of momentum vectors and energy grid.
+            Tuple of momentum coordinates and band energies.
         """
 
-        # Import data
-        data = io.loadmat(path)
+        if form == 'mat':
+            # Import data
+            data = sio.loadmat(path)
 
-        # Save to numpy variables
-        if np.abs(np.sum(np.diff(data['kxxsc'][:, 0]))) > np.abs(np.sum(np.diff(data['kxxsc'][0, :]))):
-            kx = data['kxxsc'][:, 0]
-            ky = data['kyysc'][0, :]
+            # Save to numpy variables
+            if np.abs(np.sum(np.diff(data['kxxsc'][:, 0]))) > np.abs(np.sum(np.diff(data['kxxsc'][0, :]))):
+                kx = data['kxxsc'][:, 0]
+                ky = data['kyysc'][0, :]
+            else:
+                kx = data['kxxsc'][0, :]
+                ky = data['kyysc'][:, 0]
+            bands = data['evb']
+
+        elif form == 'h5':
+            data = hdio.h5_to_dict(path)
+            kx, ky, bands = data['kx'], data['ky'], data['bands']
+
         else:
-            kx = data['kxxsc'][0, :]
-            ky = data['kyysc'][:, 0]
-        evb = data['evb']
+            raise NotImplementedError
 
-        return (kx, ky, evb)
+        if inplace:
+            self.kx = kx.copy()
+            self.ky = ky.copy()
+            self.bands = bands.copy()
+        
+        if ret:
+            return (kx, ky, bands)
 
-    def initializeBand(self, kx, ky, Eb, offset=0., flipKAxes=False, kScale=1., interp_method='linear'):
+    def adjustKScaling(self, kx, ky, Eb, flipKAxes=False, kScale=1., interp_method='linear'):
         """ Set E0 according to reference band, e.g. DFT calculation.
 
         **Parameters**\n
@@ -166,11 +203,15 @@ class MrfRec(object):
         kxx, kyy = np.meshgrid(self.kx, self.ky, indexing='ij')
         kxx = np.reshape(kxx, (self.lengthKx * self.lengthKy,))
         kyy = np.reshape(kyy, (self.lengthKx * self.lengthKy,))
-        Einterp = intFunc(np.column_stack((kxx, kyy)))
+        self.Einterp = intFunc(np.column_stack((kxx, kyy)))
+
+    def initializeBand(self, offset=0.):
+        """ Initialize band energies for reconstruction.
+        """
         
         # Add shift to the energy values
         self.offset = offset
-        self.E0 = np.reshape(Einterp + self.offset, (self.lengthKx, self.lengthKy))
+        self.E0 = np.reshape(self.Einterp + self.offset, (self.lengthKx, self.lengthKy))
 
         # Get indices of interpolated data
         EE, EE0 = np.meshgrid(self.E, self.E0)
@@ -182,7 +223,7 @@ class MrfRec(object):
         self.delHist()
 
     def set_model_params(self, eta=0.1, includeCurv=False, etaCurv=0.1):
-        """ Set the probabilistic graphical model parameter.
+        """ Set the probabilistic graphical model parameters.
         
         **Parameters**\n
         eta: numeric | 0.1 
@@ -198,12 +239,6 @@ class MrfRec(object):
         self.includeCurv = includeCurv
         self.etaCurv = etaCurv
 
-    def distributed_tuning(self, band_ind, offsets, shifts):
-        """
-        """
-
-        pass
-
     def smoothenI(self, sigma=(1., 1., 1.)):
         """ Apply a multidimensional Gaussian filter to the band mapping data (intensity values).
         
@@ -217,7 +252,7 @@ class MrfRec(object):
         # Reinitialize logP
         self.delHist()
 
-    def normalizeI(self, kernel_size=None, n_bins=128, clip_limit=0.01, use_gpu=True, threshold=1e-6):
+    def normalizeI(self, kernel_size=None, n_bins=128, clip_limit=0.01, use_gpu=False, threshold=1e-6):
         """ Normalizes the intensity using multidimensional CLAHE (MCLAHE).
 
         **Parameters**\n
@@ -343,7 +378,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
-    def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
+    def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
         """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
         **Parameters**\n
@@ -410,15 +445,22 @@ class MrfRec(object):
             indEbOut = sess.run(indEb)
 
         # Store results
+        indEb = np.ones((self.lengthKx, self.lengthKx), np.int) * int(self.lengthE / 2)
         for i in range(2):
             for j in range(2):
-                self.indEb[indX + i, indY + j] = indEbOut[i][j][:, :, 0]
+                indEb[indX + i, indY + j] = indEbOut[i][j][:, :, 0]
+
+        if inplace:
+            self.indEb = indEb.copy()
 
         self.epochsDone += num_epoch
         if graph_reset:
             tf.reset_default_graph()
 
-    def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
+        if ret:
+            return indEb
+
+    def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
         """ Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
 
         **Parameters**\n
@@ -527,19 +569,68 @@ class MrfRec(object):
             indEbOut = sess.run(indEb)
 
         # Store results
+        indEb = np.ones((self.lengthKx, self.lengthKx), np.int) * int(self.lengthE / 2)
         for i in range(3):
             for j in range(3):
-                self.indEb[indX + i, indY + j] = indEbOut[i][j][:, :, 0]
+                indEb[indX + i, indY + j] = indEbOut[i][j][:, :, 0]
+
+        if inplace:
+            self.indEb = indEb.copy()
 
         self.epochsDone += num_epoch
         if graph_reset:
             tf.reset_default_graph()
 
-    def getEb(self):
+        if ret:
+            return indEb
+
+    def recon_single(self, offset, eta, method='iter_para', niter=100):
+        """ Short-form reconstruction of a single energy band.
+        """
+
+        self.initializeBand(offset)
+        self.set_model_params(eta)
+        inds = getattr(self, method)(num_epoch=niter, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True)
+
+        return inds
+
+    def distributed_tuning(self, offsets, etas, method='iter_para', niter=100, bands=None, backend='async', pbar=False, **kwargs):
+        """ Task-based parallelization of hyperparameter tuning on multiple CPUs.
+        """
+
+        import multiprocessing as mp
+        n_cpu = mp.cpu_count()
+
+        # Construct list of arguments
+        process_args = tuple(it.product(band_ind, offsets, etas, method, niter))
+        ntasks = len(process_args)
+        n_workers = kwargs.pop('nworker', n_cpu)
+        chunk_size = kwargs.pop('chunksize', ntasks/n_workers)
+
+        # Distribute fitting tasks to processors
+        if backend == 'sync':
+            fit_inds = pm.starmap(self.recon_single, process_args, pm_processes=n_workers,\
+            pm_chunksize=chunk_size, pm_parallel=True, pm_pbar=pbar)
+        
+        elif backend == 'async':
+            fit_procs = pm.starmap_async(self.recon_single, process_args, pm_processes=n_workers,\
+            pm_chunksize=chunk_size, pm_parallel=True)
+
+            try:
+                pm.parmap._do_pbar(fit_procs, num_tasks=ntasks, chunksize=chunk_size)
+            finally:
+                fit_inds = fit_procs.get()
+
+        # Combine results
+        recon_bands = list(map(self.getEb, fit_inds))
+
+        return recon_bands
+
+    def getEb(self, inds=self.indEb):
         """ Retrieve the energy values of the reconstructed band.
         """
 
-        return self.E[self.indEb].copy()
+        return self.E[inds].copy()
 
     def getLogP(self):
         """ Retrieve the log likelihood of the electronic band structure given the model.
