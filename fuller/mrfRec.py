@@ -338,7 +338,7 @@ class MrfRec(object):
         # Reinitialize logP
         self.delHist()
 
-    def config_hardware(use_gpu=False, use_cores=n_cpu, intraop_threads=n_cpu, interop_threads=n_cpu, **kwargs):
+    def config_hardware(self, use_gpu=False, use_cores=n_cpu, intraop_threads=n_cpu, interop_threads=n_cpu, **kwargs):
         """ Set configurations for computing hardwares to use.
         """
 
