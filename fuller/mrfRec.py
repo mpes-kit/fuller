@@ -107,7 +107,7 @@ class MrfRec(object):
             return None
 
     @classmethod
-    def fromFile(cls, fileName, E0=None, eta=0.1):
+    def fromFile(cls, fileName, E0=None):
         """ Initialize reconstruction object from h5 file, returns econstruction object initialized from h5 file.
         
         **Parameters**\n        
@@ -132,7 +132,7 @@ class MrfRec(object):
             E /= np.max(E)
 
         # Construct object
-        return cls(E, kx, ky, I=I, E0=E0, eta=eta)
+        return cls(E, kx, ky, I=I, E0=E0)
 
     # @classmethod
     def loadBandInit(self, path, form='mat', inplace=False, ret=True):
