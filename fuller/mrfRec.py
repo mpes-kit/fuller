@@ -12,11 +12,14 @@ import itertools as it
 from scipy import io as sio, interpolate, ndimage
 from hdfio import dict_io as hdio
 from tqdm import tqdm
+import multiprocessing as mp
 try:
     import parmap as pm
 except:
     pass
 import warnings as wn
+
+n_cpu = mp.cpu_count()
 
 
 class MrfRec(object):
@@ -75,6 +78,9 @@ class MrfRec(object):
 
         # Set normalization flag
         self.I_normalized = False
+
+        # Hardware configuration
+        self.config = None
 
     @property
     def lengthKx(self):
@@ -332,6 +338,26 @@ class MrfRec(object):
         # Reinitialize logP
         self.delHist()
 
+    def config_hardware(use_gpu=False, use_cores=n_cpu, intraop_threads=n_cpu, interop_threads=n_cpu, **kwargs):
+        """ Set configurations for computing hardwares to use.
+        """
+
+        config_dict = {}
+        config_dict['intra_op_parallelism_threads'] = intraop_threads
+        config_dict['inter_op_parallelism_threads'] = interop_threads
+
+        device_dict = {}
+        if use_gpu == False:
+            nGPU = 0
+        else:
+            nGPU = tf.contrib.eager.num_gpus()
+        device_dict['GPU'] = nGPU
+        device_dict['CPU'] = min(use_cores, n_cpu)
+
+        config_dict['device_count'] = device_dict
+
+        self.config = tf.ConfigProto(**config_dict, **kwargs)
+
     def iter_seq(self, num_epoch=1, updateLogP=False, disable_tqdm=False):
         """ Iterate band structure reconstruction process.
 
@@ -388,7 +414,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
-    def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
+    def iter_para(self, num_epoch=1, updateLogP=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
         """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
         **Parameters**\n
@@ -435,13 +461,7 @@ class MrfRec(object):
         updateW = [update[0][0], update[1][1]]
         updateB = [update[0][1], update[1][0]]
 
-        # Do optimization
-        if use_gpu:
-            config = kwargs.pop('config', None)
-        else:
-            config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
-
-        with tf.Session(config=config) as sess:
+        with tf.Session(config=self.config) as sess:
             sess.run(tf.initializers.variables([indEb[0][0], indEb[1][0], indEb[0][1], indEb[1][1]]))
             for i in tqdm(range(num_epoch), disable=disable_tqdm):
                 sess.run(updateW)
@@ -470,7 +490,7 @@ class MrfRec(object):
         if ret:
             return indEb
 
-    def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
+    def iter_para_curv(self, num_epoch=1, updateLogP=False, disable_tqdm=False, graph_reset=True, inplace=True, ret=False, **kwargs):
         """ Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
 
         **Parameters**\n
@@ -556,13 +576,7 @@ class MrfRec(object):
         updateB = [update[(i + 1) % 3][i] for i in range(3)]
         updateO = [update[(i + 2) % 3][i] for i in range(3)]
 
-        # Do optimization
-        if use_gpu:
-            config = kwargs.pop('config', None)
-        else:
-            config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
-
-        with tf.Session(config=config) as sess:
+        with tf.Session(config=self.config) as sess:
             sess.run(tf.global_variables_initializer())
             for i in tqdm(range(num_epoch), disable=disable_tqdm):
                 sess.run(updateW)
@@ -600,16 +614,13 @@ class MrfRec(object):
 
         self.initializeBand(offset)
         self.set_model_params(eta)
-        inds = getattr(self, method)(num_epoch=niter, updateLogP=False, use_gpu=False, disable_tqdm=False, graph_reset=True)
+        inds = getattr(self, method)(num_epoch=niter, updateLogP=False, disable_tqdm=False, graph_reset=True)
 
         return inds
 
     def distributed_tuning(self, offsets, etas, method='iter_para', niter=100, bands=None, backend='async', pbar=False, **kwargs):
         """ Task-based parallelization of hyperparameter tuning on multiple CPUs.
         """
-
-        import multiprocessing as mp
-        n_cpu = mp.cpu_count()
 
         # Construct list of arguments
         process_args = tuple(it.product(offsets, etas, method, niter))
