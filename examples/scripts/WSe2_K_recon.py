@@ -5,7 +5,7 @@ import numpy as np
 import fuller
 from fuller import mrfRec
 import argparse, time
-from tqdm import notebook as nb
+from tqdm import tqdm
 from hdfio import dict_io as io
 import json
 
@@ -14,16 +14,31 @@ import json
 parser = argparse.ArgumentParser(description='Input arguments')
 parser.add_argument('-bid', '--bindex', metavar='index', nargs='?', type=int, help='The index of band to reconstruct, needs an integer between 1 and 14')
 parser.add_argument('-ksc', '--kscale', metavar='kscale', nargs='?', type=float, help='Momentum scaling')
+parser.add_argument('-pm', '--parameters', metavar='parameters', nargs='?', type=str, help='(Hyper)Parameters used for reconstruction')
+parser.add_argument('-pmfp', '--pmfpath', metavar='pmfpath', nargs='?', type=str, help='File path for user-defined (Hyper)Parameters')
+parser.add_argument('-niter', '--numiter', metavar='numiter', nargs='?', type=int, help='Number of iterations in running the reconstruction')
 parser.add_argument('-tc', '--timecount', metavar='timcount', nargs='?', type=bool, help='Whether to include time profiling')
-parser.set_defaults(bindex=1, kscale=1, timecount=True)
+parser.add_argument('-sft', '--eshift', metavar='eshift', nargs='*', help='Energy shift hyperparameters for initialization tuning')
+parser.add_argument('-eta', '--eta', metavar='eta', nargs='*', help='Eta hyperparameters for model tuning')
+parser.set_defaults(bindex=1, kscale=1, parameters='benchmark', pmfpath='', numiter=100, timecount=True, eshift=[], eta=[])
 cli_args = parser.parse_args()
 
 # Band index
 BID = cli_args.bindex
 # Momentum scaling
 KSCALE = cli_args.kscale
+# (Hyper)Parameters used for reconstruction ('benchmark', 'user', 'trial')
+PARAMS = cli_args.parameters
+# File path for user-defined (Hyper)Parameters
+PMFPATH = cli_args.pmfpath
+# Number of iterations in running the reconstruction
+NITER = cli_args.niter
 # Option to include time profiling
 TIMECOUNT = cli_args.timecount
+# Energy shift hyperparameters used for initialization tuning
+SHIFTS = cli_args.shifts
+# Eta (Gaussian width) hyperparameters used for model tuning
+ETAS = cli_args.etas
 
 if BID <= 2:
     # Bands 1-2
@@ -36,6 +51,8 @@ elif (BID > 4) and (BID <= 8):
     erange = slice(10, 280)
 elif (BID > 8) and (BID <= 14):
     # Bands 9-14
+    erange = slice(10, 490)
+else:
     erange = slice(10, 490)
 
 # Load data and initialization
@@ -53,30 +70,52 @@ mrf.normalizeI(kernel_size=[5, 5, 20], n_bins=256, clip_limit=0.01)
 mrf.I_normalized = True
 
 # Load MRF parameters
-with open(r'./Tuning_params_WSe2_K.json') as fparam:
-    params = json.load(fparam)
-shifts = sorted(params['shifts'][str(BID)])
-etas = sorted(params['etas'][str(BID)])
+if PARAMS == 'benchmark': # Benchmark hyperparameters in a json file
+    with open(r'./Tuning_params_WSe2_K.json') as fparam:
+        params = json.load(fparam)
+    shifts = sorted(params['shifts'][str(BID)])
+    etas = sorted(params['etas'][str(BID)])
+elif PARAMS == 'user': # User-defined hyperparameters in a json file
+    with open(PMFPATH) as fparam:
+        params = json.load(fparam)
+    shifts = sorted(params['shifts'][str(BID)])
+    etas = sorted(params['etas'][str(BID)])
+elif PARAMS == 'trial': # User-defined short list of hyperparameters directly from command line interface
+    if len(SHIFTS) > 1:
+        shifts = sorted(SHIFTS)
+    else:
+        shifts = [SHIFTS]
+    
+    if len(ETAS) > 1:
+        etas = sorted(ETAS)
+    else:
+        etas = [ETAS]
 
-reconmat = []
+reconmat = [] # Reconstruction outcome storage
 t_start = time.time()
 
 # Tuning hyperparameters for MRF reconstruction
-for sh in nb.tqdm(shifts):
+for sh in tqdm(shifts):
     recon_part = []
     
     for eta in etas:
         mrf.eta = eta
         mrf.initializeBand(kx=kx_theo, ky=ky_theo, Eb=E_theo[BID,...], offset=sh, kScale=KSCALE, flipKAxes=True)
-        mrf.iter_para(100, disable_tqdm=True)
+        mrf.iter_para(NITER, disable_tqdm=True)
         Erecon = mrf.getEb()
         recon_part.append(Erecon)
     reconmat.append(recon_part)
+
 reconmat = np.array(reconmat)
 
 if TIMECOUNT:
     t_end = time.time()
-    dt = t_end - t_start
+    tdiff = t_end - t_start
+
+    print('Fitting took {} seconds'.format(tdiff))
 
 # Calculate the RMS error with respect to ground truth
 rmsemat = np.linalg.norm(reconmat - data['gt'][None,None,BID,...], axis=(2,3))
+
+# Save results
+np.savez(r'./WSe2_K_recon_{}.npz'.format(PARAMS), reconmat=reconmat, rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
