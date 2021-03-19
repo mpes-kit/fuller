@@ -56,10 +56,10 @@ else:
     erange = slice(10, 490)
 
 # Load data and initialization
-data_fname = r'../data/WSe2/synth/kpoint_LDA_synth_14.h5'
+data_fname = r'../data/WSe2/synth/kpoint/kpoint_LDA_synth_14.h5'
 data = io.h5_to_dict(data_fname)
 
-theo_fname = r'../data/WSe2/theory/kpoint_PBE.h5'
+theo_fname = r'../data/WSe2/theory/kpoint/kpoint_PBE.h5'
 theo = io.h5_to_dict(theo_fname)
 ky_theo, kx_theo = theo['kx'], theo['ky']
 E_theo = theo['bands']
