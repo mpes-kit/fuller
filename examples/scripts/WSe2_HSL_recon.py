@@ -56,17 +56,17 @@ else:
     erange = slice(10, 490)
 
 # Load data and initialization
-data_fname = r'../data/WSe2/synth/kpoint/kpoint_LDA_synth_14.h5'
+data_fname = r'../data/WSe2/synth/hsymline/hsymline_LDA_synth_14.h5'
 data = io.h5_to_dict(data_fname)
 
-theo_fname = r'../data/WSe2/theory/kpoint/kpoint_PBE.h5'
+theo_fname = r'../data/WSe2/theory/symline/hsymline_PBE.h5'
 theo = io.h5_to_dict(theo_fname)
 ky_theo, kx_theo = theo['kx'], theo['ky']
 E_theo = theo['bands']
 
 # Build MRF model
 mrf = mrfRec.MrfRec(E=data['E'][erange], kx=data['kx'], ky=data['ky'], I=data['V'][..., erange], eta=0.03)
-mrf.normalizeI(kernel_size=[5, 5, 20], n_bins=256, clip_limit=0.01)
+mrf.normalizeI(kernel_size=[5, 20], n_bins=256, clip_limit=0.01)
 mrf.I_normalized = True
 
 # Load MRF parameters
@@ -118,4 +118,4 @@ if TIMECOUNT:
 rmsemat = np.linalg.norm(reconmat - data['gt'][None,None,BID,...], axis=(2,3))
 
 # Save results
-np.savez(r'./WSe2_K_recon_{}.npz'.format(PARAMS), reconmat=reconmat, rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
+np.savez(r'./WSe2_HSL_recon_{}.npz'.format(PARAMS), reconmat=reconmat, rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
