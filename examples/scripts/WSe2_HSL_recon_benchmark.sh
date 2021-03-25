@@ -10,8 +10,8 @@ FPATH="WSe2_HSL_recon.txt"
 
 BIDS="1 2 3 4 5 6 7 8 9 10 11 12 13 14"
 for BID in $BIDS
-echo "Tuning initial conditions for reconstructing band #$BID ..."
 do
+    echo "Tuning initial conditions for reconstructing band #$BID ..."
     echo "current band = $BID, energy shift = $SHFTS" >> $FPATH
     $PYTHONPATH $CODEPATH -bid=$BID -ksc=$KSCALE -pm='benchmark' -niter=$NITER >> $FPATH
     echo "" >> $FPATH
