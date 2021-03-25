@@ -40,3 +40,6 @@ docs/_build
 
 # Cookiecutter
 output/
+
+# Result files
+examples/scripts/*.txt
