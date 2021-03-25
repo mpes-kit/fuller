@@ -20,11 +20,14 @@ parser.add_argument('-niter', '--numiter', metavar='numiter', nargs='?', type=in
 parser.add_argument('-tc', '--timecount', metavar='timcount', nargs='?', type=bool, help='Whether to include time profiling')
 parser.add_argument('-sft', '--eshift', metavar='eshift', nargs='*', help='Energy shift hyperparameters for initialization tuning')
 parser.add_argument('-eta', '--eta', metavar='eta', nargs='*', help='Eta hyperparameters for model tuning')
-parser.set_defaults(bindex=1, kscale=1, parameters='benchmark', pmfpath='', numiter=100, timecount=True, eshift=[], eta=[])
+parser.add_argument('-gpu', '--gpu', metavar='gpu', nargs='?', type=bool, help='Whether to use GPU for the optimization')
+parser.set_defaults(bindex=1, kscale=1, parameters='benchmark', pmfpath='', numiter=100, timecount=True, eshift=[0], eta=[0], gpu=False)
 cli_args = parser.parse_args()
 
 # Band index
 BID = cli_args.bindex
+if BID < 1:
+    BID = 1
 # Momentum scaling
 KSCALE = cli_args.kscale
 # (Hyper)Parameters used for reconstruction ('benchmark', 'user', 'trial')
@@ -32,13 +35,15 @@ PARAMS = cli_args.parameters
 # File path for user-defined (Hyper)Parameters
 PMFPATH = cli_args.pmfpath
 # Number of iterations in running the reconstruction
-NITER = cli_args.niter
+NITER = cli_args.numiter
 # Option to include time profiling
 TIMECOUNT = cli_args.timecount
 # Energy shift hyperparameters used for initialization tuning
-SHIFTS = cli_args.shifts
+SHIFTS = list(map(float, cli_args.eshift))
 # Eta (Gaussian width) hyperparameters used for model tuning
-ETAS = cli_args.etas
+ETAS = list(map(float, cli_args.eta))
+# Option to use GPU for the optimization
+GPU = cli_args.gpu
 
 if BID <= 2:
     # Bands 1-2
@@ -92,7 +97,7 @@ elif PARAMS == 'trial': # User-defined short list of hyperparameters directly fr
         etas = [ETAS]
 
 reconmat = [] # Reconstruction outcome storage
-t_start = time.time()
+dts = [] # Time difference
 
 # Tuning hyperparameters for MRF reconstruction
 for sh in tqdm(shifts):
@@ -101,21 +106,28 @@ for sh in tqdm(shifts):
     for eta in etas:
         mrf.eta = eta
         mrf.initializeBand(kx=kx_theo, ky=ky_theo, Eb=E_theo[BID,...], offset=sh, kScale=KSCALE, flipKAxes=True)
-        mrf.iter_para(NITER, disable_tqdm=True)
+        
+        # Estimate the time count
+        t_start = time.time()
+        mrf.iter_para(NITER, disable_tqdm=True, use_gpu=GPU)
         Erecon = mrf.getEb()
+        t_end = time.time()
+        dt = t_end - t_start
+        dts.append(dt)
+        
         recon_part.append(Erecon)
     reconmat.append(recon_part)
 
 reconmat = np.array(reconmat)
 
 if TIMECOUNT:
-    t_end = time.time()
-    tdiff = t_end - t_start
-
-    print('Fitting took {} seconds'.format(tdiff))
+    dts = np.asarray(dts)
+    dts_sum = np.sum(dts)
+    print('Fitting took {} seconds'.format(dts_sum))
 
 # Calculate the RMS error with respect to ground truth
-rmsemat = np.linalg.norm(reconmat - data['gt'][None,None,BID,...], axis=(2,3))
+rmsemat = np.linalg.norm(reconmat - data['data']['gt'][None,None,BID-1,...], axis=(2,3))
 
 # Save results
-np.savez(r'./WSe2_K_recon_{}.npz'.format(PARAMS), reconmat=reconmat, rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
+np.savez(r'../results/WSe2_K_recon_{}_band_{}.npz'.format(PARAMS, str(BID).zfill(2)), reconmat=reconmat,
+        rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)

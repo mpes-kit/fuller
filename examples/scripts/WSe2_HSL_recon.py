@@ -25,6 +25,8 @@ cli_args = parser.parse_args()
 
 # Band index
 BID = cli_args.bindex
+if BID < 1:
+    BID = 1
 # Momentum scaling
 KSCALE = cli_args.kscale
 # (Hyper)Parameters used for reconstruction ('benchmark', 'user', 'trial')
@@ -32,20 +34,20 @@ PARAMS = cli_args.parameters
 # File path for user-defined (Hyper)Parameters
 PMFPATH = cli_args.pmfpath
 # Number of iterations in running the reconstruction
-NITER = cli_args.niter
+NITER = cli_args.numiter
 # Option to include time profiling
 TIMECOUNT = cli_args.timecount
 # Energy shift hyperparameters used for initialization tuning
-SHIFTS = cli_args.shifts
+SHIFTS = list(map(float, cli_args.eshift))
 # Eta (Gaussian width) hyperparameters used for model tuning
-ETAS = cli_args.etas
+ETAS = list(map(float, cli_args.eta))
 
 if BID <= 2:
     # Bands 1-2
-    erange = slice(10, 100)
+    erange = slice(10, 120)
 elif (BID > 2) and (BID <= 4):
     # Bands 3-4
-    erange = slice(10, 220)
+    erange = slice(10, 190)
 elif (BID > 4) and (BID <= 8):
     # Bands 5-8
     erange = slice(10, 280)
@@ -58,16 +60,20 @@ else:
 # Load data and initialization
 data_fname = r'../data/WSe2/synth/hsymline/hsymline_LDA_synth_14.h5'
 data = io.h5_to_dict(data_fname)
+Edat = data['data']['E']
+hsldata = data['data']['kimage']
 
 theo_fname = r'../data/WSe2/theory/symline/hsymline_PBE.h5'
 theo = io.h5_to_dict(theo_fname)
-ky_theo, kx_theo = theo['kx'], theo['ky']
-E_theo = theo['bands']
+kx_theo = np.arange(hsldata.shape[0]).astype('float')
+ky_theo = np.array([0.])
+E_theo = theo['data']['kpath']
 
 # Build MRF model
-mrf = mrfRec.MrfRec(E=data['E'][erange], kx=data['kx'], ky=data['ky'], I=data['V'][..., erange], eta=0.03)
-mrf.normalizeI(kernel_size=[5, 20], n_bins=256, clip_limit=0.01)
-mrf.I_normalized = True
+# mrf = mrfRec.MrfRec(E=Edat[erange], kx=kx_theo, ky=np.array([0.]), I=hsldata[...,None,erange],
+#                     eta=0.03, E0=E_theo[BID-1:BID,:])
+# mrf.normalizeI(kernel_size=[20, 1, 20], n_bins=256, clip_limit=0.01)
+# mrf.I_normalized = True
 
 # Load MRF parameters
 if PARAMS == 'benchmark': # Benchmark hyperparameters in a json file
@@ -92,30 +98,37 @@ elif PARAMS == 'trial': # User-defined short list of hyperparameters directly fr
         etas = [ETAS]
 
 reconmat = [] # Reconstruction outcome storage
-t_start = time.time()
+dts = [] # Time difference
 
 # Tuning hyperparameters for MRF reconstruction
 for sh in tqdm(shifts):
     recon_part = []
     
     for eta in etas:
-        mrf.eta = eta
-        mrf.initializeBand(kx=kx_theo, ky=ky_theo, Eb=E_theo[BID,...], offset=sh, kScale=KSCALE, flipKAxes=True)
-        mrf.iter_para(NITER, disable_tqdm=True)
+        mrf = mrfRec.MrfRec(E=Edat[erange], kx=kx_theo, ky=ky_theo, I=hsldata[...,None,erange],
+                            eta=eta, E0=E_theo[BID-1:BID,:].T+sh)
+        
+        # Estimate the time count
+        t_start = time.time()
+        mrf.iter_seq(NITER, disable_tqdm=True)
         Erecon = mrf.getEb()
+        t_end = time.time()
+        dt = t_end - t_start
+        dts.append(dt)
+        
         recon_part.append(Erecon)
     reconmat.append(recon_part)
 
 reconmat = np.array(reconmat)
 
 if TIMECOUNT:
-    t_end = time.time()
-    tdiff = t_end - t_start
-
-    print('Fitting took {} seconds'.format(tdiff))
+    dts = np.asarray(dts)
+    dts_sum = np.sum(dts)
+    print('Fitting took {} seconds'.format(dts_sum))
 
 # Calculate the RMS error with respect to ground truth
-rmsemat = np.linalg.norm(reconmat - data['gt'][None,None,BID,...], axis=(2,3))
+rmsemat = np.linalg.norm(reconmat - data['data']['gt'][None,None,BID-1,...], axis=(2,3))
 
 # Save results
-np.savez(r'./WSe2_HSL_recon_{}.npz'.format(PARAMS), reconmat=reconmat, rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
+np.savez(r'../results/WSe2_HSL_recon_{}_band_{}.npz'.format(PARAMS, str(BID).zfill(2)), reconmat=reconmat,
+        rmsemat=rmsemat, shifts=shifts, etas=etas, params=params, kscale=KSCALE)
