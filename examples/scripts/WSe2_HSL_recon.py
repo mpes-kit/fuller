@@ -77,7 +77,7 @@ E_theo = theo['data']['kpath']
 
 # Load MRF parameters
 if PARAMS == 'benchmark': # Benchmark hyperparameters in a json file
-    with open(r'./Tuning_params_WSe2_K.json') as fparam:
+    with open(r'./Tuning_params_WSe2_HSL.json') as fparam:
         params = json.load(fparam)
     shifts = sorted(params['shifts'][str(BID)])
     etas = sorted(params['etas'][str(BID)])

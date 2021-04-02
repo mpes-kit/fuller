@@ -105,7 +105,7 @@ for sh in tqdm(shifts):
     
     for eta in etas:
         mrf.eta = eta
-        mrf.initializeBand(kx=kx_theo, ky=ky_theo, Eb=E_theo[BID,...], offset=sh, kScale=KSCALE, flipKAxes=True)
+        mrf.initializeBand(kx=kx_theo, ky=ky_theo, Eb=E_theo[BID-1,...], offset=sh, kScale=KSCALE, flipKAxes=True)
         
         # Estimate the time count
         t_start = time.time()
