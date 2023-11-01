@@ -40,3 +40,7 @@ docs/_build
 
 # Cookiecutter
 output/
+# data
+data/
+*.zip
+*.h5
