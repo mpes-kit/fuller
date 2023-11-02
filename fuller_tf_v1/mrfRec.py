@@ -381,11 +381,11 @@ class MrfRec(object):
                              - tf.pad(squDiff[i - 1][j][i:(lengthKx // 2 - 1 + i), :, :], [[1 - i, i], [0, 0], [0, 0]])\
                              - tf.pad(squDiff[i][j - 1][:, j:(lengthKx // 2 - 1 + j), :], [[0, 0], [1 - j, j], [0, 0]])
         if updateLogP:
-            logPTot = tf.reduce_sum(tf.compat.v1.batch_gather(logP[0][0], indEb[0][0])) + tf.reduce_sum(tf.compat.v1.batch_gather(logP[1][1], indEb[1][1]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logI[0][1], indEb[0][1])) + tf.reduce_sum(tf.compat.v1.batch_gather(logI[1][0], indEb[1][0]))
+            logPTot = tf.reduce_sum(tf.batch_gather(logP[0][0], indEb[0][0])) + tf.reduce_sum(tf.batch_gather(logP[1][1], indEb[1][1]))\
+                      + tf.reduce_sum(tf.batch_gather(logI[0][1], indEb[0][1])) + tf.reduce_sum(tf.batch_gather(logI[1][0], indEb[1][0]))
 
         # Do updates
-        update = [[tf.compat.v1.assign(indEb[i][j], tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2)) for j in range(2)] for i in range(2)]
+        update = [[tf.assign(indEb[i][j], tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2)) for j in range(2)] for i in range(2)]
         updateW = [update[0][0], update[1][1]]
         updateB = [update[0][1], update[1][0]]
 
@@ -393,10 +393,10 @@ class MrfRec(object):
         if use_gpu:
             config = kwargs.pop('config', None)
         else:
-            config = kwargs.pop('config', tf.compat.v1.ConfigProto(device_count={'GPU': 0}))
+            config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
 
-        with tf.compat.v1.Session(config=config) as sess:
-            sess.run(tf.compat.v1.initializers.variables([indEb[0][0], indEb[1][0], indEb[0][1], indEb[1][1]]))
+        with tf.Session(config=config) as sess:
+            sess.run(tf.initializers.variables([indEb[0][0], indEb[1][0], indEb[0][1], indEb[1][1]]))
             for i in tqdm(range(num_epoch), disable=disable_tqdm):
                 sess.run(updateW)
                 if updateLogP:
@@ -415,7 +415,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
         if graph_reset:
-            tf.compat.v1.reset_default_graph()
+            tf.reset_default_graph()
 
 
     def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
@@ -492,14 +492,14 @@ class MrfRec(object):
                                                          [0, 0, 0], [nKx, nKy - 1 + pj[0], nE])),
                                       [[0, 0], [0, 1 - pj[0]], [0, 0]])
         if updateLogP:
-            logPTot = tf.reduce_sum(tf.compat.v1.batch_gather(logP[0][0], indEb[0][0])) + tf.reduce_sum(tf.compat.v1.batch_gather(logP[1][1], indEb[1][1]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logP[2][2], indEb[2][2])) + tf.reduce_sum(tf.compat.v1.batch_gather(logI[0][1], indEb[0][1]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logI[1][0], indEb[1][0])) + tf.reduce_sum(tf.compat.v1.batch_gather(logI[2][0], indEb[2][0]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logI[0][2], indEb[0][2])) + tf.reduce_sum(tf.compat.v1.batch_gather(logI[2][1], indEb[2][1]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logI[1][2], indEb[1][2]))
+            logPTot = tf.reduce_sum(tf.batch_gather(logP[0][0], indEb[0][0])) + tf.reduce_sum(tf.batch_gather(logP[1][1], indEb[1][1]))\
+                      + tf.reduce_sum(tf.batch_gather(logP[2][2], indEb[2][2])) + tf.reduce_sum(tf.batch_gather(logI[0][1], indEb[0][1]))\
+                      + tf.reduce_sum(tf.batch_gather(logI[1][0], indEb[1][0])) + tf.reduce_sum(tf.batch_gather(logI[2][0], indEb[2][0]))\
+                      + tf.reduce_sum(tf.batch_gather(logI[0][2], indEb[0][2])) + tf.reduce_sum(tf.batch_gather(logI[2][1], indEb[2][1]))\
+                      + tf.reduce_sum(tf.batch_gather(logI[1][2], indEb[1][2]))
 
         # Do updates
-        update = [[tf.compat.v1.assign(indEb[i][j], tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2)) for j in range(3)] for i in range(3)]
+        update = [[tf.assign(indEb[i][j], tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2)) for j in range(3)] for i in range(3)]
         updateW = [update[i][i] for i in range(3)]
         updateB = [update[(i + 1) % 3][i] for i in range(3)]
         updateO = [update[(i + 2) % 3][i] for i in range(3)]
@@ -508,10 +508,10 @@ class MrfRec(object):
         if use_gpu:
             config = kwargs.pop('config', None)
         else:
-            config = kwargs.pop('config', tf.compat.v1.ConfigProto(device_count={'GPU': 0}))
+            config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
 
-        with tf.compat.v1.Session(config=config) as sess:
-            sess.run(tf.compat.v1.global_variables_initializer())
+        with tf.Session(config=config) as sess:
+            sess.run(tf.global_variables_initializer())
             for i in tqdm(range(num_epoch), disable=disable_tqdm):
                 sess.run(updateW)
                 if updateLogP:
@@ -533,7 +533,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
         if graph_reset:
-            tf.compat.v1.reset_default_graph()
+            tf.reset_default_graph()
 
 
     def getEb(self):

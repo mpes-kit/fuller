@@ -44,3 +44,5 @@ output/
 data/
 *.zip
 *.h5
+
+.python-version

@@ -1,0 +1,11 @@
+# Dev/Deployment
+numpy<=1.22
+scipy
+matplotlib
+poppy
+natsort
+symmetrize
+tqdm
+silx
+tensorflow
+protobuf<=3.20
