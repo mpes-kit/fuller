@@ -7,5 +7,5 @@ natsort
 symmetrize
 tqdm
 silx
-tensorflow
+tensorflow>=2
 protobuf<=3.20
