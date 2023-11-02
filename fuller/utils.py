@@ -286,9 +286,9 @@ def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **k
     """
 
     if form in ('h5', 'hdf5'):
-        files = nts.natsorted(g.glob(folder + '\*.' + 'h5'))
+        files = nts.natsorted(g.glob(f"{folder}/*.h5"))
     else:
-        files = nts.natsorted(g.glob(folder + '\*.' + form))
+        files = nts.natsorted(g.glob(f"{folder}/*.{form}"))
 
     # Load energy values
     econtents = []
