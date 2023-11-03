@@ -341,6 +341,24 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
+    @tf.function
+    def compute_updates(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+        squDiff = [[tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)] for i in range(2)]
+        logP = self.__initSquMat(2)
+        for i in range(2):
+            for j in range(2):
+                logP[i][j] = logI[i][j] - squDiff[i - 1][j] - squDiff[i][j - 1]\
+                             - tf.pad(squDiff[i - 1][j][i:(lengthKx // 2 - 1 + i), :, :], [[1 - i, i], [0, 0], [0, 0]])\
+                             - tf.pad(squDiff[i][j - 1][:, j:(lengthKx // 2 - 1 + j), :], [[0, 0], [1 - j, j], [0, 0]])
+
+        logPTot = None
+        if updateLogP:
+            logPTot = tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=1)) + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=1))\
+                      + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=1)) + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=1))
+
+        updates = [[tf.argmax(logP[i][j], axis=2, output_type=tf.int32) for j in range(2)] for i in range(2)]
+
+        return updates, logPTot
 
     def iter_para(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
         """ Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
@@ -358,64 +376,35 @@ class MrfRec(object):
             Flag, if true Tensorflow graph is reset after computation to reduce memory demand
         """
 
-        # Preprocessing
         if updateLogP:
             self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
         lengthKx = 2 * (self.lengthKx // 2)
         lengthKy = 2 * (self.lengthKy // 2)
         indX, indY = np.meshgrid(np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing='ij')
-        # Initialize logI and indEb for each field type
         logI = [[tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)] for i in range(2)]
         indEb = [[tf.Variable(np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32) for j in range(2)] for i in range(2)]
         E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
         E3d = tf.constant(self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0]))
 
-        # Calculate square differences
-        squDiff = [[tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)] for i in range(2)]
+        for i in tqdm(range(num_epoch), disable=disable_tqdm):
+            updates, logPTot = self.compute_updates(E1d, E3d, logI, indEb, lengthKx, updateLogP)
+            for m in range(2):
+                for n in range(2):
+                    indEb[m][n].assign(tf.expand_dims(updates[m][n], 2))
 
-        # Calculate log(P)
-        logP = self.__initSquMat(2)
-        for i in range(2):
-            for j in range(2):
-                logP[i][j] = logI[i][j] - squDiff[i - 1][j] - squDiff[i][j - 1]\
-                             - tf.pad(squDiff[i - 1][j][i:(lengthKx // 2 - 1 + i), :, :], [[1 - i, i], [0, 0], [0, 0]])\
-                             - tf.pad(squDiff[i][j - 1][:, j:(lengthKx // 2 - 1 + j), :], [[0, 0], [1 - j, j], [0, 0]])
-        if updateLogP:
-            logPTot = tf.reduce_sum(tf.compat.v1.batch_gather(logP[0][0], indEb[0][0])) + tf.reduce_sum(tf.compat.v1.batch_gather(logP[1][1], indEb[1][1]))\
-                      + tf.reduce_sum(tf.compat.v1.batch_gather(logI[0][1], indEb[0][1])) + tf.reduce_sum(tf.compat.v1.batch_gather(logI[1][0], indEb[1][0]))
+            if updateLogP:
+                self.logP[2 * i] = logPTot.numpy()
+                self.logP[2 * i + 1] = logPTot.numpy()
 
-        # Do updates
-        update = [[tf.compat.v1.assign(indEb[i][j], tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2)) for j in range(2)] for i in range(2)]
-        updateW = [update[0][0], update[1][1]]
-        updateB = [update[0][1], update[1][0]]
-
-        # Do optimization
-        if use_gpu:
-            config = kwargs.pop('config', None)
-        else:
-            config = kwargs.pop('config', tf.compat.v1.ConfigProto(device_count={'GPU': 0}))
-
-        with tf.compat.v1.Session(config=config) as sess:
-            sess.run(tf.compat.v1.initializers.variables([indEb[0][0], indEb[1][0], indEb[0][1], indEb[1][1]]))
-            for i in tqdm(range(num_epoch), disable=disable_tqdm):
-                sess.run(updateW)
-                if updateLogP:
-                    self.logP[2 * (i - num_epoch)] = sess.run(logPTot)
-                sess.run(updateB)
-                if updateLogP:
-                    self.logP[2 * (i - num_epoch) + 1] = sess.run(logPTot)
-
-            # Extract results
-            indEbOut = sess.run(indEb)
+        # Extract results
+        indEbOut = [[indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row] for indEb_row in indEb]
 
         # Store results
         for i in range(2):
             for j in range(2):
-                self.indEb[indX + i, indY + j] = indEbOut[i][j][:, :, 0]
+                self.indEb[indX + i, indY + j] = indEbOut[i][j]
 
         self.epochsDone += num_epoch
-        if graph_reset:
-            tf.compat.v1.reset_default_graph()
 
 
     def iter_para_curv(self, num_epoch=1, updateLogP=False, use_gpu=True, disable_tqdm=False, graph_reset=True, **kwargs):
