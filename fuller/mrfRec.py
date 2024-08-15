@@ -266,7 +266,7 @@ class MrfRec(object):
                 clip_limit=clip_limit,
                 use_gpu=use_gpu,
             )
-        except:
+        except ImportError:
             wn.warn(
                 "The package mclahe is not installed, therefore no contrast enhancement is performed."
             )
@@ -418,7 +418,7 @@ class MrfRec(object):
             [tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)]
             for i in range(2)
         ]
-        logP = self.__initSquMat(2)
+        logP = self._initSquMat(2)
         for i in range(2):
             for j in range(2):
                 logP[i][j] = (
@@ -596,7 +596,7 @@ class MrfRec(object):
         ]
 
         # Calculate log(P)
-        logP = self.__initSquMat(3)
+        logP = self._initSquMat(3)
         for i in range(3):
             for j in range(3):
                 pi = [max(0, 1 - i), max(0, i - 1)]
@@ -1031,7 +1031,7 @@ class MrfRec(object):
             # Reinitialize logP
             self.delHist()
 
-    def __initSquMat(self, n, el=None):
+    def _initSquMat(self, n, el=None):
         """Returns as square matrix of size nxn with el as element in each element.
 
         **Parameters**\n
