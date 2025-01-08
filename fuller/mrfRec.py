@@ -11,6 +11,7 @@ from scipy import io, interpolate, ndimage
 from tqdm import tqdm
 import warnings as wn
 
+tf.config.run_functions_eagerly(True)
 
 class MrfRec(object):
     """Class for reconstructing band structure from band mapping data."""
