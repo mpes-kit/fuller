@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import contextlib
 from .generator import rotosymmetrize
 import numpy as np
 import tensorflow as tf
@@ -11,17 +12,7 @@ from scipy import io, interpolate, ndimage
 from tqdm import tqdm
 import warnings as wn
 
-tf.config.run_functions_eagerly(True)
-
-# try:
-#     # Disable all GPUS
-#     tf.config.set_visible_devices([], 'GPU')
-#     visible_devices = tf.config.get_visible_devices()
-#     for device in visible_devices:
-#         assert device.device_type != 'GPU'
-# except:
-#     # Invalid device or cannot modify virtual devices once initialized.
-#     pass
+# tf.config.run_functions_eagerly(True)
 
 
 class MrfRec(object):
@@ -477,8 +468,6 @@ class MrfRec(object):
         updateLogP=False,
         use_gpu=True,
         disable_tqdm=False,
-        graph_reset=True,
-        **kwargs
     ):
         """Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
@@ -491,64 +480,62 @@ class MrfRec(object):
             Flag, if true gpu is used for computations if available
         disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization
-        graph_reset: bool | True
-            Flag, if true Tensorflow graph is reset after computation to reduce memory demand
         """
-
-        if updateLogP:
-            self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
-        lengthKx = 2 * (self.lengthKx // 2)
-        lengthKy = 2 * (self.lengthKy // 2)
-        indX, indY = np.meshgrid(
-            np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij"
-        )
-        logI = [
-            [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)]
-            for i in range(2)
-        ]
-        indEb = [
-            [
-                tf.Variable(
-                    np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
-                )
-                for j in range(2)
+        with (contextlib.nullcontext() if use_gpu else tf.device('/CPU:0')):
+            if updateLogP:
+                self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
+            lengthKx = 2 * (self.lengthKx // 2)
+            lengthKy = 2 * (self.lengthKy // 2)
+            indX, indY = np.meshgrid(
+                np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij"
+            )
+            logI = [
+                [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)]
+                for i in range(2)
             ]
-            for i in range(2)
-        ]
-        E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
-        E3d = tf.constant(
-            self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
-        )
+            indEb = [
+                [
+                    tf.Variable(
+                        np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
+                    )
+                    for j in range(2)
+                ]
+                for i in range(2)
+            ]
+            E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
+            E3d = tf.constant(
+                self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
+            )
 
-        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
-
-        for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
-            # white nodes
-            updateW = self.compute_updateW(logP)
-            for i in range(2):
-                indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
             logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
-            if updateLogP:
-                self.logP[2 * epoch + 1] = self.compute_logPTot(logP, logI, indEb).numpy()
 
-            # black nodes
-            updateB = self.compute_updateB(logP)
-            for i in range(2):
-                indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
-            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
-            if updateLogP:
-                self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
+            for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
+                # white nodes
+                updateW = self.compute_updateW(logP)
+                for i in range(2):
+                    indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                if updateLogP:
+                    self.logP[2 * epoch + 1] = self.compute_logPTot(logP, logI, indEb).numpy()
 
-        # Extract results
-        indEbOut = [
-            [indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row]
-            for indEb_row in indEb
-        ]
+                # black nodes
+                updateB = self.compute_updateB(logP)
+                for i in range(2):
+                    indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                if updateLogP:
+                    self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
+
+            # Extract results
+            indEbOut = [
+                [indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row]
+                for indEb_row in indEb
+            ]
 
         # Store results
-        for epoch in range(2):
+        for i in range(2):
             for j in range(2):
-                self.indEb[indX + epoch, indY + j] = indEbOut[epoch][j]
+                self.indEb[indX + i, indY + j] = indEbOut[i][j]
 
         self.epochsDone += num_epoch
 
