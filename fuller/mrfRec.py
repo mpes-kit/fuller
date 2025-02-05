@@ -13,6 +13,17 @@ import warnings as wn
 
 tf.config.run_functions_eagerly(True)
 
+# try:
+#     # Disable all GPUS
+#     tf.config.set_visible_devices([], 'GPU')
+#     visible_devices = tf.config.get_visible_devices()
+#     for device in visible_devices:
+#         assert device.device_type != 'GPU'
+# except:
+#     # Invalid device or cannot modify virtual devices once initialized.
+#     pass
+
+
 class MrfRec(object):
     """Class for reconstructing band structure from band mapping data."""
 
@@ -413,8 +424,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
-    @tf.function
-    def compute_updates(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+    def compute_logP(self, E1d, E3d, logI, indEb, lengthKx):
         squDiff = [
             [tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)]
             for i in range(2)
@@ -435,22 +445,35 @@ class MrfRec(object):
                         [[0, 0], [1 - j, j], [0, 0]],
                     )
                 )
+        return logP
+    
+    def compute_logPTot(self, logP, logI, indEb):
+        return (
+            tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=2))
+        ) 
 
-        logPTot = None
-        if updateLogP:
-            logPTot = (
-                tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=1))
-            )
+    @tf.function
+    def compute_updateW(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+        # white Nodes
+        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+        updateW = [tf.argmax(logP[i][i], axis=2, output_type=tf.int32) for i in range(2)]
 
-        updates = [
-            [tf.argmax(logP[i][j], axis=2, output_type=tf.int32) for j in range(2)]
-            for i in range(2)
-        ]
+        logPTot = self.compute_logPTot(logP, logI, indEb) if updateLogP else None
 
-        return updates, logPTot
+        return updateW, logPTot
+    
+    @tf.function
+    def compute_updateB(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+        # black Nodes
+        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+        updateB = [tf.argmax(logP[i][1-i], axis=2, output_type=tf.int32) for i in range(2)]
+
+        logPTot = self.compute_logPTot(logP, logI, indEb) if updateLogP else None
+
+        return updateB, logPTot
 
     def iter_para(
         self,
@@ -501,17 +524,24 @@ class MrfRec(object):
             self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
         )
 
-        for i in tqdm(range(num_epoch), disable=disable_tqdm):
-            updates, logPTot = self.compute_updates(
+        for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
+            # white nodes
+            updateW, logPTot = self.compute_updateW(
                 E1d, E3d, logI, indEb, lengthKx, updateLogP
             )
-            for m in range(2):
-                for n in range(2):
-                    indEb[m][n].assign(tf.expand_dims(updates[m][n], 2))
-
+            for i in range(2):
+                indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
             if updateLogP:
-                self.logP[2 * i] = logPTot.numpy()
-                self.logP[2 * i + 1] = logPTot.numpy()
+                self.logP[2 * epoch + 1] = logPTot.numpy()
+
+            # black nodes
+            updateB, logPTot = self.compute_updateB(
+                E1d, E3d, logI, indEb, lengthKx, updateLogP
+            )
+            for i in range(2):
+                indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
+            if updateLogP:
+                self.logP[2 * epoch + 2] = logPTot.numpy()
 
         # Extract results
         indEbOut = [
@@ -520,9 +550,9 @@ class MrfRec(object):
         ]
 
         # Store results
-        for i in range(2):
+        for epoch in range(2):
             for j in range(2):
-                self.indEb[indX + i, indY + j] = indEbOut[i][j]
+                self.indEb[indX + epoch, indY + j] = indEbOut[epoch][j]
 
         self.epochsDone += num_epoch
 
