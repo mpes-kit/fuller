@@ -424,6 +424,7 @@ class MrfRec(object):
 
         self.epochsDone += num_epoch
 
+    @tf.function
     def compute_logP(self, E1d, E3d, logI, indEb, lengthKx):
         squDiff = [
             [tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)]
@@ -447,6 +448,7 @@ class MrfRec(object):
                 )
         return logP
     
+    @tf.function
     def compute_logPTot(self, logP, logI, indEb):
         return (
             tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=2))
@@ -456,24 +458,18 @@ class MrfRec(object):
         ) 
 
     @tf.function
-    def compute_updateW(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+    def compute_updateW(self, logP):
         # white Nodes
-        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
         updateW = [tf.argmax(logP[i][i], axis=2, output_type=tf.int32) for i in range(2)]
 
-        logPTot = self.compute_logPTot(logP, logI, indEb) if updateLogP else None
-
-        return updateW, logPTot
+        return updateW
     
     @tf.function
-    def compute_updateB(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+    def compute_updateB(self, logP):
         # black Nodes
-        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
         updateB = [tf.argmax(logP[i][1-i], axis=2, output_type=tf.int32) for i in range(2)]
 
-        logPTot = self.compute_logPTot(logP, logI, indEb) if updateLogP else None
-
-        return updateB, logPTot
+        return updateB
 
     def iter_para(
         self,
@@ -524,24 +520,24 @@ class MrfRec(object):
             self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
         )
 
+        logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+
         for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
             # white nodes
-            updateW, logPTot = self.compute_updateW(
-                E1d, E3d, logI, indEb, lengthKx, updateLogP
-            )
+            updateW = self.compute_updateW(logP)
             for i in range(2):
                 indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
+            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
             if updateLogP:
-                self.logP[2 * epoch + 1] = logPTot.numpy()
+                self.logP[2 * epoch + 1] = self.compute_logPTot(logP, logI, indEb).numpy()
 
             # black nodes
-            updateB, logPTot = self.compute_updateB(
-                E1d, E3d, logI, indEb, lengthKx, updateLogP
-            )
+            updateB = self.compute_updateB(logP)
             for i in range(2):
                 indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
+            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
             if updateLogP:
-                self.logP[2 * epoch + 2] = logPTot.numpy()
+                self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
 
         # Extract results
         indEbOut = [
