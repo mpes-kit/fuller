@@ -1,5 +1,5 @@
 # Dev/Deployment
-numpy<=1.22
+numpy<2
 scipy
 matplotlib
 poppy
@@ -8,4 +8,4 @@ symmetrize
 tqdm
 silx
 tensorflow>=2
-protobuf<=3.20
+protobuf
