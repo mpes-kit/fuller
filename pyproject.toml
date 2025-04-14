@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "fuller.__version__"}
+
+[project]
+name = "fuller"
+dynamic = ["version"]
+authors = [
+    {name = "Vincent Stimper, R. Patrick Xian"},
+]
+description = "Integrated computational framework for electronic band structure reconstruction and parametrization"
+readme = "README.rst"
+license = { file = "LICENSE.md" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy<2",
+    "scipy",
+    "matplotlib",
+    "poppy",
+    "natsort",
+    "symmetrize",
+    "tqdm",
+    "silx",
+    "tensorflow>=2",
+    "protobuf",
+]
+
+[project.urls]
+Homepage = "https://github.com/mpes-kit/fuller"
+
+[project.optional-dependencies]
+cuda = [
+    "tensorflow[cuda]>=2",
+]
+
+Examples = [
+    "mpes",
+    "ipywidgets",
+]
+
+[tool.setuptools]
+packages = ["fuller", "fuller_tf_v1"]
+
+[tool.pydocstyle]
+convention = "google"
+
+[tool.coverage.report]
+exclude_lines = [
+  "raise NotImplementedError",
+  "pragma: no cover",
+]

@@ -69,7 +69,7 @@ class MrfRec(object):
 
         # Initialize band structure
         if E0 is None:
-            self.indEb = np.ones((self.lengthKx, self.lengthKx), np.int) * int(self.lengthE / 2)
+            self.indEb = np.ones((self.lengthKx, self.lengthKx), int) * int(self.lengthE / 2)
         else:
             EE, EE0 = np.meshgrid(E, E0)
             ind1d = np.argmin(np.abs(EE - EE0), 1)
@@ -391,10 +391,17 @@ class MrfRec(object):
         updateB = [update[0][1], update[1][0]]
 
         # Do optimization
+        #if use_gpu:
+        #    config = kwargs.pop('config', None)
+        #else:
+        #   config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
+
         if use_gpu:
-            config = kwargs.pop('config', None)
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
         else:
-            config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
+           config = kwargs.pop('config', tf.ConfigProto(device_count={'GPU': 0}))
+        
 
         with tf.Session(config=config) as sess:
             sess.run(tf.initializers.variables([indEb[0][0], indEb[1][0], indEb[0][1], indEb[1][1]]))
