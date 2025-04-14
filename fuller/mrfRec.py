@@ -481,6 +481,12 @@ class MrfRec(object):
         disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization
         """
+
+        if use_gpu:
+            physical_devices = tf.config.list_physical_devices('GPU')
+            for device in physical_devices:
+                tf.config.experimental.set_memory_growth(device, True)
+
         with (contextlib.nullcontext() if use_gpu else tf.device('/CPU:0')):
             if updateLogP:
                 self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
