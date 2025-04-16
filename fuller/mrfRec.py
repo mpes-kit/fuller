@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import contextlib
 from .generator import rotosymmetrize
 import contextlib
 import numpy as np
@@ -12,7 +13,8 @@ from scipy import io, interpolate, ndimage
 from tqdm import tqdm
 import warnings as wn
 
-tf.config.run_functions_eagerly(True)
+# tf.config.run_functions_eagerly(True)
+
 
 class MrfRec(object):
     """Class for reconstructing band structure from band mapping data."""
@@ -480,12 +482,15 @@ class MrfRec(object):
         disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization
         """
+<<<<<<< HEAD
 
         if use_gpu:
             physical_devices = tf.config.list_physical_devices('GPU')
             for device in physical_devices:
                 tf.config.experimental.set_memory_growth(device, True)
 
+=======
+>>>>>>> 9f092d9b203606895a73a35705da63b3fd17235f
         with (contextlib.nullcontext() if use_gpu else tf.device('/CPU:0')):
             if updateLogP:
                 self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
@@ -846,7 +851,7 @@ class MrfRec(object):
             indKx = np.argmin(np.abs(self.kx - kx))
             x, y = np.meshgrid(self.ky, self.E)
             z = np.transpose(self.I[indKx, :, :])
-            lab = ["$k_y\,\,(\AA^{-1})$", "$E\,\,(eV)$"]
+            lab = ["$k_y (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.ky
@@ -856,7 +861,7 @@ class MrfRec(object):
             indKy = np.argmin(np.abs(self.ky - ky))
             x, y = np.meshgrid(self.kx, self.E)
             z = np.transpose(self.I[:, indKy, :])
-            lab = ["$k_x\,\,(\AA^{-1})$", "$E\,\,(eV)$"]
+            lab = ["$k_x (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.kx
@@ -866,7 +871,7 @@ class MrfRec(object):
             indE = np.argmin(np.abs(self.E - E))
             x, y = np.meshgrid(self.kx, self.ky)
             z = np.transpose(self.I[:, :, indE])
-            lab = ["$k_x\,\,(\AA^{-1})$", "$k_y\,\,(\AA^{-1})$"]
+            lab = ["$k_x (\AA^{-1})$", "$k_y (\AA^{-1})$"]
 
         # Plot I
         plt.rcParams["figure.figsize"] = figsize
@@ -881,7 +886,7 @@ class MrfRec(object):
         if self.I_normalized:
             colorbar_label = "$I/I_{max}$"
         else:
-            colorbar_label = "$I\,\,(counts)$"
+            colorbar_label = "$I (counts)$"
         cb.set_label(label=colorbar_label, fontsize=24)
         cb.ax.tick_params(labelsize=20)
         if equal_axes:
@@ -900,11 +905,11 @@ class MrfRec(object):
                 plt.pcolormesh(x, y, self.getEb())
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
-                plt.xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-                plt.ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
+                plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
+                plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
                 cb = plt.colorbar(pad=0.02)
                 cb.ax.tick_params(labelsize=20)
-                cb.set_label(label="$E\,\,(eV)$", fontsize=24)
+                cb.set_label(label="$E (eV)$", fontsize=24)
                 if equal_axes:
                     ax = plt.gca()
                     ax.set_aspect("equal", "box")
@@ -948,11 +953,11 @@ class MrfRec(object):
         plt.pcolormesh(x, y, self.getEb(), cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-        plt.xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-        plt.ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
+        plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
+        plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
         cb = plt.colorbar(pad=0.02)
         cb.ax.tick_params(labelsize=20)
-        cb.set_label(label="$E\,\,(eV)$", fontsize=24)
+        cb.set_label(label="$E (eV)$", fontsize=24)
         if equal_axes:
             ax = plt.gca()
             ax.set_aspect("equal", "box")
@@ -962,9 +967,9 @@ class MrfRec(object):
             fig = plt.figure()
             ax = fig.gca(projection="3d")
             ax.plot_surface(x, y, np.transpose(self.getEb()))
-            ax.set_xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-            ax.set_ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
-            ax.set_zlabel("$E\,\,(eV)$", fontsize=24)
+            ax.set_xlabel("$k_x (\AA^{-1})$", fontsize=24)
+            ax.set_ylabel("$k_y (\AA^{-1})$", fontsize=24)
+            ax.set_zlabel("$E (eV)$", fontsize=24)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
             for tick in ax.zaxis.get_major_ticks():
