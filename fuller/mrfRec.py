@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import contextlib
 from .generator import rotosymmetrize
+import contextlib
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -10,6 +12,8 @@ import h5py
 from scipy import io, interpolate, ndimage
 from tqdm import tqdm
 import warnings as wn
+
+# tf.config.run_functions_eagerly(True)
 
 
 class MrfRec(object):
@@ -77,7 +81,7 @@ class MrfRec(object):
 
         # Initialize band structure
         if E0 is None:
-            self.indEb = np.ones((self.lengthKx, self.lengthKx), np.int) * int(
+            self.indEb = np.ones((self.lengthKx, self.lengthKx), int) * int(
                 self.lengthE / 2
             )
         else:
@@ -413,7 +417,7 @@ class MrfRec(object):
         self.epochsDone += num_epoch
 
     @tf.function
-    def compute_updates(self, E1d, E3d, logI, indEb, lengthKx, updateLogP):
+    def compute_logP(self, E1d, E3d, logI, indEb, lengthKx):
         squDiff = [
             [tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)]
             for i in range(2)
@@ -434,22 +438,30 @@ class MrfRec(object):
                         [[0, 0], [1 - j, j], [0, 0]],
                     )
                 )
+        return logP
+    
+    @tf.function
+    def compute_logPTot(self, logP, logI, indEb):
+        return (
+            tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=2))
+            + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=2))
+        ) 
 
-        logPTot = None
-        if updateLogP:
-            logPTot = (
-                tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=1))
-                + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=1))
-            )
+    @tf.function
+    def compute_updateW(self, logP):
+        # white Nodes
+        updateW = [tf.argmax(logP[i][i], axis=2, output_type=tf.int32) for i in range(2)]
 
-        updates = [
-            [tf.argmax(logP[i][j], axis=2, output_type=tf.int32) for j in range(2)]
-            for i in range(2)
-        ]
+        return updateW
+    
+    @tf.function
+    def compute_updateB(self, logP):
+        # black Nodes
+        updateB = [tf.argmax(logP[i][1-i], axis=2, output_type=tf.int32) for i in range(2)]
 
-        return updates, logPTot
+        return updateB
 
     def iter_para(
         self,
@@ -457,8 +469,6 @@ class MrfRec(object):
         updateLogP=False,
         use_gpu=True,
         disable_tqdm=False,
-        graph_reset=True,
-        **kwargs
     ):
         """Iterate band structure reconstruction process (no curvature), computations done in parallel using Tensorflow.
 
@@ -471,52 +481,66 @@ class MrfRec(object):
             Flag, if true gpu is used for computations if available
         disable_tqdm: bool | False
             Flag, it true no progress bar is shown during optimization
-        graph_reset: bool | True
-            Flag, if true Tensorflow graph is reset after computation to reduce memory demand
         """
+<<<<<<< HEAD
 
-        if updateLogP:
-            self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
-        lengthKx = 2 * (self.lengthKx // 2)
-        lengthKy = 2 * (self.lengthKy // 2)
-        indX, indY = np.meshgrid(
-            np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij"
-        )
-        logI = [
-            [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)]
-            for i in range(2)
-        ]
-        indEb = [
-            [
-                tf.Variable(
-                    np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
-                )
-                for j in range(2)
-            ]
-            for i in range(2)
-        ]
-        E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
-        E3d = tf.constant(
-            self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
-        )
+        if use_gpu:
+            physical_devices = tf.config.list_physical_devices('GPU')
+            for device in physical_devices:
+                tf.config.experimental.set_memory_growth(device, True)
 
-        for i in tqdm(range(num_epoch), disable=disable_tqdm):
-            updates, logPTot = self.compute_updates(
-                E1d, E3d, logI, indEb, lengthKx, updateLogP
-            )
-            for m in range(2):
-                for n in range(2):
-                    indEb[m][n].assign(tf.expand_dims(updates[m][n], 2))
-
+=======
+>>>>>>> 9f092d9b203606895a73a35705da63b3fd17235f
+        with (contextlib.nullcontext() if use_gpu else tf.device('/CPU:0')):
             if updateLogP:
-                self.logP[2 * i] = logPTot.numpy()
-                self.logP[2 * i + 1] = logPTot.numpy()
+                self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
+            lengthKx = 2 * (self.lengthKx // 2)
+            lengthKy = 2 * (self.lengthKy // 2)
+            indX, indY = np.meshgrid(
+                np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij"
+            )
+            logI = [
+                [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)]
+                for i in range(2)
+            ]
+            indEb = [
+                [
+                    tf.Variable(
+                        np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
+                    )
+                    for j in range(2)
+                ]
+                for i in range(2)
+            ]
+            E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
+            E3d = tf.constant(
+                self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
+            )
 
-        # Extract results
-        indEbOut = [
-            [indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row]
-            for indEb_row in indEb
-        ]
+            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+
+            for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
+                # white nodes
+                updateW = self.compute_updateW(logP)
+                for i in range(2):
+                    indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                if updateLogP:
+                    self.logP[2 * epoch + 1] = self.compute_logPTot(logP, logI, indEb).numpy()
+
+                # black nodes
+                updateB = self.compute_updateB(logP)
+                for i in range(2):
+                    indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                if updateLogP:
+                    self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
+
+            # Extract results
+            indEbOut = [
+                [indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row]
+                for indEb_row in indEb
+            ]
 
         # Store results
         for i in range(2):
@@ -827,7 +851,7 @@ class MrfRec(object):
             indKx = np.argmin(np.abs(self.kx - kx))
             x, y = np.meshgrid(self.ky, self.E)
             z = np.transpose(self.I[indKx, :, :])
-            lab = ["$k_y\,\,(\AA^{-1})$", "$E\,\,(eV)$"]
+            lab = ["$k_y (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.ky
@@ -837,7 +861,7 @@ class MrfRec(object):
             indKy = np.argmin(np.abs(self.ky - ky))
             x, y = np.meshgrid(self.kx, self.E)
             z = np.transpose(self.I[:, indKy, :])
-            lab = ["$k_x\,\,(\AA^{-1})$", "$E\,\,(eV)$"]
+            lab = ["$k_x (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.kx
@@ -847,7 +871,7 @@ class MrfRec(object):
             indE = np.argmin(np.abs(self.E - E))
             x, y = np.meshgrid(self.kx, self.ky)
             z = np.transpose(self.I[:, :, indE])
-            lab = ["$k_x\,\,(\AA^{-1})$", "$k_y\,\,(\AA^{-1})$"]
+            lab = ["$k_x (\AA^{-1})$", "$k_y (\AA^{-1})$"]
 
         # Plot I
         plt.rcParams["figure.figsize"] = figsize
@@ -862,7 +886,7 @@ class MrfRec(object):
         if self.I_normalized:
             colorbar_label = "$I/I_{max}$"
         else:
-            colorbar_label = "$I\,\,(counts)$"
+            colorbar_label = "$I (counts)$"
         cb.set_label(label=colorbar_label, fontsize=24)
         cb.ax.tick_params(labelsize=20)
         if equal_axes:
@@ -881,11 +905,11 @@ class MrfRec(object):
                 plt.pcolormesh(x, y, self.getEb())
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
-                plt.xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-                plt.ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
+                plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
+                plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
                 cb = plt.colorbar(pad=0.02)
                 cb.ax.tick_params(labelsize=20)
-                cb.set_label(label="$E\,\,(eV)$", fontsize=24)
+                cb.set_label(label="$E (eV)$", fontsize=24)
                 if equal_axes:
                     ax = plt.gca()
                     ax.set_aspect("equal", "box")
@@ -929,11 +953,11 @@ class MrfRec(object):
         plt.pcolormesh(x, y, self.getEb(), cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-        plt.xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-        plt.ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
+        plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
+        plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
         cb = plt.colorbar(pad=0.02)
         cb.ax.tick_params(labelsize=20)
-        cb.set_label(label="$E\,\,(eV)$", fontsize=24)
+        cb.set_label(label="$E (eV)$", fontsize=24)
         if equal_axes:
             ax = plt.gca()
             ax.set_aspect("equal", "box")
@@ -943,9 +967,9 @@ class MrfRec(object):
             fig = plt.figure()
             ax = fig.gca(projection="3d")
             ax.plot_surface(x, y, np.transpose(self.getEb()))
-            ax.set_xlabel("$k_x\,\,(\AA^{-1})$", fontsize=24)
-            ax.set_ylabel("$k_y\,\,(\AA^{-1})$", fontsize=24)
-            ax.set_zlabel("$E\,\,(eV)$", fontsize=24)
+            ax.set_xlabel("$k_x (\AA^{-1})$", fontsize=24)
+            ax.set_ylabel("$k_y (\AA^{-1})$", fontsize=24)
+            ax.set_zlabel("$E (eV)$", fontsize=24)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
             for tick in ax.zaxis.get_major_ticks():
