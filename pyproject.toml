@@ -1,9 +1,11 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=64.0.1", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-version = {attr = "fuller.__version__"}
+[tool.setuptools]
+packages = ["fuller"]
+
+[tool.setuptools_scm]
 
 [project]
 name = "fuller"
@@ -12,8 +14,9 @@ authors = [
     {name = "Vincent Stimper, R. Patrick Xian"},
 ]
 description = "Integrated computational framework for electronic band structure reconstruction and parametrization"
-readme = "README.rst"
-license = { file = "LICENSE.md" }
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9,<3.13"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -40,13 +43,10 @@ cuda = [
     "tensorflow[cuda]>=2",
 ]
 
-Examples = [
+examples = [
     "mpes",
     "ipywidgets",
 ]
-
-[tool.setuptools]
-packages = ["fuller", "fuller_tf_v1"]
 
 [tool.pydocstyle]
 convention = "google"
