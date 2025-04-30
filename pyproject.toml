@@ -40,7 +40,7 @@ Homepage = "https://github.com/mpes-kit/fuller"
 
 [project.optional-dependencies]
 cuda = [
-    "tensorflow[cuda]>=2",
+    "tensorflow[and-cuda]>=2",
 ]
 
 examples = [
