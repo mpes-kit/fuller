@@ -1,21 +1,20 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import contextlib
-from .generator import rotosymmetrize
-import numpy as np
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
-import h5py
-from scipy import io, interpolate, ndimage
-from tqdm import tqdm
 import warnings as wn
 
-# tf.config.run_functions_eagerly(True)
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from scipy import interpolate
+from scipy import io
+from scipy import ndimage
+from tqdm import tqdm
+
+from .generator import rotosymmetrize
 
 
-class MrfRec(object):
+class MrfRec:
     """Class for reconstructing band structure from band mapping data."""
 
     def __init__(
@@ -80,9 +79,7 @@ class MrfRec(object):
 
         # Initialize band structure
         if E0 is None:
-            self.indEb = np.ones((self.lengthKx, self.lengthKx), int) * int(
-                self.lengthE / 2
-            )
+            self.indEb = np.ones((self.lengthKx, self.lengthKx), int) * int(self.lengthE / 2)
         else:
             EE, EE0 = np.meshgrid(E, E0)
             ind1d = np.argmin(np.abs(EE - EE0), 1)
@@ -98,7 +95,7 @@ class MrfRec(object):
 
     @classmethod
     def fromFile(cls, fileName, E0=None, eta=0.1):
-        """Initialize reconstruction object from h5 file, returns econstruction object initialized from h5 file.
+        """Initialize reconstruction object from h5 file, returns reconstruction object initialized from h5 file.
 
         **Parameters**\n
         fileName: str
@@ -141,9 +138,7 @@ class MrfRec(object):
         data = io.loadmat(path)
 
         # Save to numpy variables
-        if np.abs(np.sum(np.diff(data["kxxsc"][:, 0]))) > np.abs(
-            np.sum(np.diff(data["kxxsc"][0, :]))
-        ):
+        if np.abs(np.sum(np.diff(data["kxxsc"][:, 0]))) > np.abs(np.sum(np.diff(data["kxxsc"][0, :]))):
             kx = data["kxxsc"][:, 0]
             ky = data["kyysc"][0, :]
         else:
@@ -177,7 +172,8 @@ class MrfRec(object):
         kxScale: numeric | 1.
             Scaling factor applied to k axes of reference band (after flipping if done).
         interp_method: str | 'linear'
-            Method used to interpolate reference band on grid of measured data, 'linear' and 'nearest' are possible choices. Details see ``scipy.interpolate.RegularGridInterpolator()``.
+            Method used to interpolate reference band on grid of measured data, 'linear' and 'nearest' are possible
+            choices. Details see ``scipy.interpolate.RegularGridInterpolator()``.
         """
 
         # Detach data from input vars
@@ -270,9 +266,7 @@ class MrfRec(object):
                 use_gpu=use_gpu,
             )
         except ImportError:
-            wn.warn(
-                "The package mclahe is not installed, therefore no contrast enhancement is performed."
-            )
+            wn.warn("The package mclahe is not installed, therefore no contrast enhancement is performed.")
 
         self.I = self.I / np.max(self.I)
         indSmall = self.I < threshold
@@ -303,25 +297,19 @@ class MrfRec(object):
             indXRef = np.min(np.where(self.kx > 0.0)[0])
             lIndX = np.min([indXRef, self.lengthKx - indXRef])
             indX = np.arange(indXRef - lIndX, indXRef + lIndX)
-            self.I[indX, :, :] = (
-                self.I[indX, :, :] + self.I[np.flip(indX, axis=0), :, :]
-            ) / 2
+            self.I[indX, :, :] = (self.I[indX, :, :] + self.I[np.flip(indX, axis=0), :, :]) / 2
 
             # Symmetrize wrt plane perpendicular to ky axis
             indYRef = np.min(np.where(self.ky > 0.0)[0])
             lIndY = np.min([indYRef, self.lengthKy - indYRef])
             indY = np.arange(indYRef - lIndY, indYRef + lIndY)
-            self.I[:, indY, :] = (
-                self.I[:, indY, :] + self.I[:, np.flip(indY, axis=0), :]
-            ) / 2
+            self.I[:, indY, :] = (self.I[:, indY, :] + self.I[:, np.flip(indY, axis=0), :]) / 2
 
         # Rotational symmetrization
         if rotational:
             center = (np.argmin(np.abs(self.kx)), np.argmin(np.abs(self.ky)))
             for i in range(self.I.shape[2]):
-                self.I[:, :, i], _ = rotosymmetrize(
-                    self.I[:, :, i], center, rotsym=rotational_order
-                )
+                self.I[:, :, i], _ = rotosymmetrize(self.I[:, :, i], center, rotsym=rotational_order)
 
         # Reinitialize logP
         self.delHist()
@@ -348,9 +336,7 @@ class MrfRec(object):
             ECurv = self.E / (np.sqrt(2) * self.etaCurv)
 
         # Do iterations
-        indList = np.random.choice(
-            self.lengthKx * self.lengthKy, self.lengthKx * self.lengthKy * num_epoch
-        )
+        indList = np.random.choice(self.lengthKx * self.lengthKy, self.lengthKx * self.lengthKy * num_epoch)
         for i, ind in enumerate(tqdm(indList, disable=disable_tqdm)):
             indx = ind // self.lengthKy
             indy = ind % self.lengthKy
@@ -360,56 +346,31 @@ class MrfRec(object):
                 logP -= (ENN - ENN[self.indEb[indx - 1, indy]]) ** 2
                 if self.includeCurv:
                     if indx > 1:
-                        logP -= (
-                            ECurv[self.indEb[indx - 2, indy]]
-                            - 2 * ECurv[self.indEb[indx - 1, indy]]
-                            + ECurv
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx - 2, indy]] - 2 * ECurv[self.indEb[indx - 1, indy]] + ECurv) ** 2
                     if indx < (self.lengthKx - 1):
-                        logP -= (
-                            ECurv[self.indEb[indx - 1, indy]]
-                            - 2 * ECurv
-                            + ECurv[self.indEb[indx + 1, indy]]
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx - 1, indy]] - 2 * ECurv + ECurv[self.indEb[indx + 1, indy]]) ** 2
             if indx < (self.lengthKx - 1):
                 logP -= (ENN - ENN[self.indEb[indx + 1, indy]]) ** 2
                 if self.includeCurv:
                     if indx < (self.lengthKx - 2):
-                        logP -= (
-                            ECurv[self.indEb[indx - 2, indy]]
-                            - 2 * ECurv[self.indEb[indx - 1, indy]]
-                            + ECurv
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx - 2, indy]] - 2 * ECurv[self.indEb[indx - 1, indy]] + ECurv) ** 2
             if indy > 0:
                 logP -= (ENN - ENN[self.indEb[indx, indy - 1]]) ** 2
                 if self.includeCurv:
                     if indy > 1:
-                        logP -= (
-                            ECurv[self.indEb[indx, indy - 2]]
-                            - 2 * ECurv[self.indEb[indx, indy - 1]]
-                            + ECurv
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx, indy - 2]] - 2 * ECurv[self.indEb[indx, indy - 1]] + ECurv) ** 2
                     if indy < (self.lengthKy - 1):
-                        logP -= (
-                            ECurv[self.indEb[indx, indy - 1]]
-                            - 2 * ECurv
-                            + ECurv[self.indEb[indx, indy + 1]]
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx, indy - 1]] - 2 * ECurv + ECurv[self.indEb[indx, indy + 1]]) ** 2
             if indy < (self.lengthKy - 1):
                 logP -= (ENN - ENN[self.indEb[indx, indy + 1]]) ** 2
                 if self.includeCurv:
                     if indy < (self.lengthKy - 2):
-                        logP -= (
-                            ECurv[self.indEb[indx, indy - 2]]
-                            - 2 * ECurv[self.indEb[indx, indy - 1]]
-                            + ECurv
-                        ) ** 2
+                        logP -= (ECurv[self.indEb[indx, indy - 2]] - 2 * ECurv[self.indEb[indx, indy - 1]] + ECurv) ** 2
             logP += logI[indx, indy, :]
             self.indEb[indx, indy] = np.argmax(logP)
             if updateLogP and (
                 ((i + 1) % (self.lengthKx * self.lengthKy)) == 0
-                or ((i + 1) % (self.lengthKx * self.lengthKy))
-                == (self.lengthKx * self.lengthKy // 2)
+                or ((i + 1) % (self.lengthKx * self.lengthKy)) == (self.lengthKx * self.lengthKy // 2)
             ):
                 self.logP = np.append(self.logP, self.getLogP())
 
@@ -417,10 +378,7 @@ class MrfRec(object):
 
     @tf.function
     def compute_logP(self, E1d, E3d, logI, indEb, lengthKx):
-        squDiff = [
-            [tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)]
-            for i in range(2)
-        ]
+        squDiff = [[tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)] for i in range(2)]
         logP = self._initSquMat(2)
         for i in range(2):
             for j in range(2):
@@ -438,7 +396,7 @@ class MrfRec(object):
                     )
                 )
         return logP
-    
+
     @tf.function
     def compute_logPTot(self, logP, logI, indEb):
         return (
@@ -446,7 +404,7 @@ class MrfRec(object):
             + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=2))
             + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=2))
             + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=2))
-        ) 
+        )
 
     @tf.function
     def compute_updateW(self, logP):
@@ -454,11 +412,11 @@ class MrfRec(object):
         updateW = [tf.argmax(logP[i][i], axis=2, output_type=tf.int32) for i in range(2)]
 
         return updateW
-    
+
     @tf.function
     def compute_updateB(self, logP):
         # black Nodes
-        updateB = [tf.argmax(logP[i][1-i], axis=2, output_type=tf.int32) for i in range(2)]
+        updateB = [tf.argmax(logP[i][1 - i], axis=2, output_type=tf.int32) for i in range(2)]
 
         return updateB
 
@@ -483,35 +441,23 @@ class MrfRec(object):
         """
 
         if use_gpu:
-            physical_devices = tf.config.list_physical_devices('GPU')
+            physical_devices = tf.config.list_physical_devices("GPU")
             for device in physical_devices:
                 tf.config.experimental.set_memory_growth(device, True)
 
-        with (contextlib.nullcontext() if use_gpu else tf.device('/CPU:0')):
+        with contextlib.nullcontext() if use_gpu else tf.device("/CPU:0"):
             if updateLogP:
                 self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
             lengthKx = 2 * (self.lengthKx // 2)
             lengthKy = 2 * (self.lengthKy // 2)
-            indX, indY = np.meshgrid(
-                np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij"
-            )
-            logI = [
-                [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)]
-                for i in range(2)
-            ]
+            indX, indY = np.meshgrid(np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij")
+            logI = [[tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)] for i in range(2)]
             indEb = [
-                [
-                    tf.Variable(
-                        np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
-                    )
-                    for j in range(2)
-                ]
+                [tf.Variable(np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32) for j in range(2)]
                 for i in range(2)
             ]
             E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
-            E3d = tf.constant(
-                self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
-            )
+            E3d = tf.constant(self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0]))
 
             logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
 
@@ -527,16 +473,13 @@ class MrfRec(object):
                 # black nodes
                 updateB = self.compute_updateB(logP)
                 for i in range(2):
-                    indEb[i][1-i].assign(tf.expand_dims(updateB[i], 2))
+                    indEb[i][1 - i].assign(tf.expand_dims(updateB[i], 2))
                 logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
                 if updateLogP:
                     self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
 
             # Extract results
-            indEbOut = [
-                [indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row]
-                for indEb_row in indEb
-            ]
+            indEbOut = [[indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row] for indEb_row in indEb]
 
         # Store results
         for i in range(2):
@@ -552,9 +495,10 @@ class MrfRec(object):
         use_gpu=True,
         disable_tqdm=False,
         graph_reset=True,
-        **kwargs
+        **kwargs,
     ):
-        """Iterate band structure reconstruction process (with curvature), computations done in parallel using Tensorflow.
+        """Iterate band structure reconstruction process (with curvature), computations done in parallel using
+        Tensorflow.
 
         **Parameters**\n
         num_epoch: int | 1
@@ -568,11 +512,7 @@ class MrfRec(object):
         """
 
         if not self.includeCurv:
-            raise (
-                Exception(
-                    "Curvature is not considered in this MRF object. Please use iter_para instead."
-                )
-            )
+            raise (Exception("Curvature is not considered in this MRF object. Please use iter_para instead."))
 
         # Preprocessing
         if updateLogP:
@@ -582,38 +522,21 @@ class MrfRec(object):
         nE = self.lengthE
         lengthKx = 3 * nKx
         lengthKy = 3 * nKy
-        indX, indY = np.meshgrid(
-            np.arange(lengthKx, step=3), np.arange(lengthKy, step=3), indexing="ij"
-        )
+        indX, indY = np.meshgrid(np.arange(lengthKx, step=3), np.arange(lengthKy, step=3), indexing="ij")
         # Initialize logI and indEb for each field type
-        logI = [
-            [tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(3)]
-            for i in range(3)
-        ]
+        logI = [[tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(3)] for i in range(3)]
         indEb = [
-            [
-                tf.Variable(
-                    np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32
-                )
-                for j in range(3)
-            ]
+            [tf.Variable(np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32) for j in range(3)]
             for i in range(3)
         ]
         ENN1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
-        ENN3d = tf.constant(
-            self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0])
-        )
+        ENN3d = tf.constant(self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0]))
         ECurv1d = tf.constant(self.E / (np.sqrt(2) * self.etaCurv))
-        ECurv3d = tf.constant(
-            self.E / (np.sqrt(2) * self.etaCurv), shape=(1, 1, self.E.shape[0])
-        )
+        ECurv3d = tf.constant(self.E / (np.sqrt(2) * self.etaCurv), shape=(1, 1, self.E.shape[0]))
         EbCurv = [[tf.gather(ECurv1d, indEb[i][j]) for j in range(3)] for i in range(3)]
 
         # Calculate square differences
-        squDiff = [
-            [tf.square(tf.gather(ENN1d, indEb[i][j]) - ENN3d) for j in range(3)]
-            for i in range(3)
-        ]
+        squDiff = [[tf.square(tf.gather(ENN1d, indEb[i][j]) - ENN3d) for j in range(3)] for i in range(3)]
 
         # Calculate log(P)
         logP = self._initSquMat(3)
@@ -624,15 +547,11 @@ class MrfRec(object):
                 logP[i][j] = (
                     logI[i][j]
                     - tf.pad(
-                        tf.slice(
-                            squDiff[i - 2][j], [pi[1], 0, 0], [nKx - pi[1], nKy, nE]
-                        ),
+                        tf.slice(squDiff[i - 2][j], [pi[1], 0, 0], [nKx - pi[1], nKy, nE]),
                         [[0, pi[1]], [0, 0], [0, 0]],
                     )
                     - tf.pad(
-                        tf.slice(
-                            squDiff[i][j - 2], [0, pj[1], 0], [nKx, nKy - pj[1], nE]
-                        ),
+                        tf.slice(squDiff[i][j - 2], [0, pj[1], 0], [nKx, nKy - pj[1], nE]),
                         [[0, 0], [0, pj[1]], [0, 0]],
                     )
                     - tf.pad(
@@ -651,7 +570,7 @@ class MrfRec(object):
                                 + ECurv3d,
                                 [1 - pi[1], 0, 0],
                                 [nKx - 1 + pi[1], nKy, nE],
-                            )
+                            ),
                         ),
                         [[1 - pi[1], 0], [0, 0], [0, 0]],
                     )
@@ -663,7 +582,7 @@ class MrfRec(object):
                                 + tf.roll(EbCurv[i - 2][j], shift=-pi[1], axis=0),
                                 [pi[0], 0, 0],
                                 [nKx - pi[0] - pi[1], nKy, nE],
-                            )
+                            ),
                         ),
                         [[pi[0], pi[1]], [0, 0], [0, 0]],
                     )
@@ -675,7 +594,7 @@ class MrfRec(object):
                                 + tf.roll(EbCurv[i - 1][j], shift=pi[0] - 1, axis=0),
                                 [0, 0, 0],
                                 [nKx - 1 + pi[0], nKy, nE],
-                            )
+                            ),
                         ),
                         [[0, 1 - pi[0]], [0, 0], [0, 0]],
                     )
@@ -687,7 +606,7 @@ class MrfRec(object):
                                 + ECurv3d,
                                 [0, 1 - pj[1], 0],
                                 [nKx, nKy - 1 + pj[1], nE],
-                            )
+                            ),
                         ),
                         [[0, 0], [1 - pj[1], 0], [0, 0]],
                     )
@@ -699,7 +618,7 @@ class MrfRec(object):
                                 + tf.roll(EbCurv[i][j - 2], shift=-pj[1], axis=1),
                                 [0, pj[0], 0],
                                 [nKx, nKy - pj[0] - pj[1], nE],
-                            )
+                            ),
                         ),
                         [[0, 0], [pj[0], pj[1]], [0, 0]],
                     )
@@ -711,7 +630,7 @@ class MrfRec(object):
                                 + tf.roll(EbCurv[i][j - 1], shift=pj[0] - 1, axis=1),
                                 [0, 0, 0],
                                 [nKx, nKy - 1 + pj[0], nE],
-                            )
+                            ),
                         ),
                         [[0, 0], [0, 1 - pj[0]], [0, 0]],
                     )
@@ -734,9 +653,7 @@ class MrfRec(object):
             [
                 tf.compat.v1.assign(
                     indEb[i][j],
-                    tf.expand_dims(
-                        tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2
-                    ),
+                    tf.expand_dims(tf.argmax(logP[i][j], axis=2, output_type=tf.int32), 2),
                 )
                 for j in range(3)
             ]
@@ -750,9 +667,7 @@ class MrfRec(object):
         if use_gpu:
             config = kwargs.pop("config", None)
         else:
-            config = kwargs.pop(
-                "config", tf.compat.v1.ConfigProto(device_count={"GPU": 0})
-            )
+            config = kwargs.pop("config", tf.compat.v1.ConfigProto(device_count={"GPU": 0}))
 
         with tf.compat.v1.Session(config=config) as sess:
             sess.run(tf.compat.v1.global_variables_initializer())
@@ -788,20 +703,14 @@ class MrfRec(object):
         """Retrieve the log likelihood of the electronic band structure given the model."""
 
         # Likelihood terms
-        indKx, indKy = np.meshgrid(
-            np.arange(self.lengthKx), np.arange(self.lengthKy), indexing="ij"
-        )
+        indKx, indKy = np.meshgrid(np.arange(self.lengthKx), np.arange(self.lengthKy), indexing="ij")
         logP = np.sum(np.log(self.I[indKx, indKy, self.indEb]))
         # Interaction terms
         Eb = self.getEb()
         if self.lengthKx > 1:
-            logP -= np.sum(
-                (Eb[0 : (self.lengthKx - 1), :] - Eb[1 : self.lengthKx, :]) ** 2
-            ) / (2 * self.eta**2)
+            logP -= np.sum((Eb[0 : (self.lengthKx - 1), :] - Eb[1 : self.lengthKx, :]) ** 2) / (2 * self.eta**2)
         if self.lengthKy > 1:
-            logP -= np.sum(
-                (Eb[:, 0 : (self.lengthKy - 1)] - Eb[:, 1 : self.lengthKy]) ** 2
-            ) / (2 * self.eta**2)
+            logP -= np.sum((Eb[:, 0 : (self.lengthKy - 1)] - Eb[:, 1 : self.lengthKy]) ** 2) / (2 * self.eta**2)
 
         return logP
 
@@ -847,7 +756,7 @@ class MrfRec(object):
             indKx = np.argmin(np.abs(self.kx - kx))
             x, y = np.meshgrid(self.ky, self.E)
             z = np.transpose(self.I[indKx, :, :])
-            lab = ["$k_y (\AA^{-1})$", "$E (eV)$"]
+            lab = [r"$k_y (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.ky
@@ -857,7 +766,7 @@ class MrfRec(object):
             indKy = np.argmin(np.abs(self.ky - ky))
             x, y = np.meshgrid(self.kx, self.E)
             z = np.transpose(self.I[:, indKy, :])
-            lab = ["$k_x (\AA^{-1})$", "$E (eV)$"]
+            lab = [r"$k_x (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.kx
@@ -867,7 +776,7 @@ class MrfRec(object):
             indE = np.argmin(np.abs(self.E - E))
             x, y = np.meshgrid(self.kx, self.ky)
             z = np.transpose(self.I[:, :, indE])
-            lab = ["$k_x (\AA^{-1})$", "$k_y (\AA^{-1})$"]
+            lab = [r"$k_x (\AA^{-1})$", r"$k_y (\AA^{-1})$"]
 
         # Plot I
         plt.rcParams["figure.figsize"] = figsize
@@ -901,8 +810,8 @@ class MrfRec(object):
                 plt.pcolormesh(x, y, self.getEb())
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
-                plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
-                plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
+                plt.xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
+                plt.ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
                 cb = plt.colorbar(pad=0.02)
                 cb.ax.tick_params(labelsize=20)
                 cb.set_label(label="$E (eV)$", fontsize=24)
@@ -924,9 +833,7 @@ class MrfRec(object):
                         linewidth=2.0,
                     )
 
-    def plotBands(
-        self, surfPlot=False, cmapName="viridis", figsize=[9, 9], equal_axes=False
-    ):
+    def plotBands(self, surfPlot=False, cmapName="viridis", figsize=[9, 9], equal_axes=False):
         """Plot reconstructed electronic band structure.
 
         **Parameters**\n
@@ -949,8 +856,8 @@ class MrfRec(object):
         plt.pcolormesh(x, y, self.getEb(), cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-        plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
-        plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
+        plt.xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
+        plt.ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
         cb = plt.colorbar(pad=0.02)
         cb.ax.tick_params(labelsize=20)
         cb.set_label(label="$E (eV)$", fontsize=24)
@@ -963,8 +870,8 @@ class MrfRec(object):
             fig = plt.figure()
             ax = fig.gca(projection="3d")
             ax.plot_surface(x, y, np.transpose(self.getEb()))
-            ax.set_xlabel("$k_x (\AA^{-1})$", fontsize=24)
-            ax.set_ylabel("$k_y (\AA^{-1})$", fontsize=24)
+            ax.set_xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
+            ax.set_ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
             ax.set_zlabel("$E (eV)$", fontsize=24)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
@@ -980,7 +887,7 @@ class MrfRec(object):
         ax = fig.gca()
         ax.plot(epoch, -self.logP, linewidth=2.0)
         ax.set_xlabel("epochs", fontsize=24)
-        ax.set_ylabel("$-\log(p)+$" + "const", fontsize=24)
+        ax.set_ylabel(r"$-\log(p)+$" + "const", fontsize=24)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
 
@@ -991,7 +898,7 @@ class MrfRec(object):
         self.epochsDone = 0
 
     def saveBand(self, fileName, hyperparams=True, index=None):
-        """Save the reconstructed electronic band and associated optimization paramters to file.
+        """Save the reconstructed electronic band and associated optimization parameters to file.
 
         **Parameters**\n
         fileName: str
@@ -1032,10 +939,7 @@ class MrfRec(object):
 
         if fileName is not None:
             file = h5py.File(fileName, "r")
-            if (
-                self.lengthKx == file["/axes/kx"].shape[0]
-                and self.lengthKy == file["/axes/ky"].shape[0]
-            ):
+            if self.lengthKx == file["/axes/kx"].shape[0] and self.lengthKy == file["/axes/ky"].shape[0]:
                 Eb = np.asarray(file["/bands/Eb"])
 
         if Eb is not None:
