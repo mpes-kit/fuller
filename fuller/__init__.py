@@ -1,8 +1,8 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from . import utils, metrics
 import warnings as wn
+
+from . import metrics
+from . import utils
 
 with wn.catch_warnings():
     wn.simplefilter("ignore")
@@ -20,5 +20,5 @@ except:
     pass
 
 
-__version__ = '0.9.9'
-__author__ = 'Vincent Stimper, R. Patrick Xian'
+__version__ = "0.9.9"
+__author__ = "Vincent Stimper, R. Patrick Xian"
