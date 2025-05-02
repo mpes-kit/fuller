@@ -50,6 +50,7 @@ cuda = [
 ]
 
 examples = [
+    "mclahe>=1.1.0",
     "mpes",
     "ipywidgets",
 ]
