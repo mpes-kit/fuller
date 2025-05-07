@@ -1,23 +1,21 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
+import glob as g
 
+import natsort as nts
 import numpy as np
+import scipy.io as sio
+from h5py import File
+from scipy.interpolate import RegularGridInterpolator as RGI
+from silx.io import dictdump
+from tqdm import tqdm as tqdm_classic
+from tqdm import tqdm_notebook
 # import tensorflow as tf
 # from tensorflow.python.framework import ops
 # from tensorflow.python.ops import gen_math_ops
-from scipy.interpolate import RegularGridInterpolator as RGI
-from tqdm import tqdm_notebook
-from tqdm import tqdm as tqdm_classic
-from h5py import File
-from silx.io import dictdump
-import scipy.io as sio
-import natsort as nts
-import glob as g
-from itertools import product
 
 
 def nonneg_sum_decomposition(absum, a=None, b=None):
-    """ Nonnegative decomposition of a sum.
+    """Nonnegative decomposition of a sum.
 
     Paramters:
         a, b: numeric/None, numeric/None | None, None
@@ -31,25 +29,23 @@ def nonneg_sum_decomposition(absum, a=None, b=None):
     """
 
     if a is not None:
-        if a > absum:
-            a = absum
+        a = min(a, absum)
         b = absum - a
 
         return a, b
 
     elif b is not None:
-        if b > absum:
-            b = absum
+        b = min(b, absum)
         a = absum - b
 
         return a, b
 
     elif (a is None) and (b is None):
-        raise ValueError('At least one of the components should be a numeric.')
+        raise ValueError("At least one of the components should be a numeric.")
 
 
 def tqdmenv(env):
-    """ Choose tqdm progress bar executing environment.
+    """Choose tqdm progress bar executing environment.
 
     Parameter:
         env: str
@@ -57,17 +53,16 @@ def tqdmenv(env):
             'notebook' for Jupyter notebook.
     """
 
-    if env == 'classic':
+    if env == "classic":
         tqdm = tqdm_classic
-    elif env == 'notebook':
+    elif env == "notebook":
         tqdm = tqdm_notebook
 
     return tqdm
 
 
 def to_masked(arr, val=0):
-    """ Convert to masked array based on specified value.
-    """
+    """Convert to masked array based on specified value."""
 
     arrm = arr.copy()
     arrm[arrm == val] = np.nan
@@ -76,14 +71,13 @@ def to_masked(arr, val=0):
 
 
 def valrange(arr):
-    """ Output the value range of an array.
-    """
+    """Output the value range of an array."""
 
     return arr.min(), arr.max()
 
 
-def interpolate2d(oldx, oldy, vals, nx=None, ny=None, ret='interpolant', **kwargs):
-    """ Interpolate values in a newer and/or finer grid.
+def interpolate2d(oldx, oldy, vals, nx=None, ny=None, ret="interpolant", **kwargs):
+    """Interpolate values in a newer and/or finer grid.
 
     **Parameters**\n
     oldx, oldy: 1D array, 1D array
@@ -99,42 +93,41 @@ def interpolate2d(oldx, oldy, vals, nx=None, ny=None, ret='interpolant', **kwarg
             Axes' values after interpolation.
     """
 
-    newx = kwargs.pop('newx', np.linspace(oldx.min(), oldx.max(), nx, endpoint=True))
-    newy = kwargs.pop('newy', np.linspace(oldy.min(), oldy.max(), ny, endpoint=True))
-    newxymesh = np.meshgrid(newx, newy, indexing='ij')
-    newxy = np.stack(newxymesh, axis=-1).reshape((nx*ny, 2))
+    newx = kwargs.pop("newx", np.linspace(oldx.min(), oldx.max(), nx, endpoint=True))
+    newy = kwargs.pop("newy", np.linspace(oldy.min(), oldy.max(), ny, endpoint=True))
+    newxymesh = np.meshgrid(newx, newy, indexing="ij")
+    newxy = np.stack(newxymesh, axis=-1).reshape((nx * ny, 2))
 
     vip = RGI((oldx, oldy), vals)
     vals_interp = vip(newxy).reshape((nx, ny))
 
-    if ret == 'interpolant':
+    if ret == "interpolant":
         return vals_interp, vip
-    elif ret == 'all':
+    elif ret == "all":
         return vals_interp, vip, newxymesh
 
 
 def cut_margins(image, margins, offsetx=0, offsety=0):
-    """ Trim a 2D image by the given margins.
-    """
+    """Trim a 2D image by the given margins."""
 
     offsetx, offsety = int(offsetx), int(offsety)
     yim, xim = image.shape
     t, b, l, r = margins
 
     if offsetx != 0:
-        l, r = l-offsetx, r-offsetx
+        l, r = l - offsetx, r - offsetx
     if offsety != 0:
-        t, b = t-offsety, b-offsety
+        t, b = t - offsety, b - offsety
 
-    image_cut = image[t:yim-b, l:xim-r]
+    image_cut = image[t : yim - b, l : xim - r]
 
     return image_cut
 
 
-def findFiles(fdir, fstring='', ftype='h5', **kwds):
+def findFiles(fdir, fstring="", ftype="h5", **kwds):
     """
     Retrieve files named in a similar way from a folder.
-    
+
     Parameters:
         fdir: str
             Folder name where the files are stored.
@@ -145,14 +138,14 @@ def findFiles(fdir, fstring='', ftype='h5', **kwds):
         **kwds: keyword arguments
             Extra keywords for `natsorted()`.
     """
-    
-    files = nts.natsorted(g.glob(fdir + fstring + '.' + ftype), **kwds)
-    
+
+    files = nts.natsorted(g.glob(fdir + fstring + "." + ftype), **kwds)
+
     return files
 
 
-def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
-    """ Combine dictionaries and save into a hierarchical structure.
+def saveHDF(*groups, save_addr="./file.h5", track_order=True, **kwds):
+    """Combine dictionaries and save into a hierarchical structure.
 
     **Parameters**\n
     groups: list/tuple
@@ -163,7 +156,7 @@ def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
     """
 
     try:
-        hdf = File(save_addr, 'w')
+        hdf = File(save_addr, "w")
 
         for g in groups:
             grp = hdf.create_group(g[0], track_order=track_order)
@@ -175,8 +168,8 @@ def saveHDF(*groups, save_addr='./file.h5', track_order=True, **kwds):
         hdf.close()
 
 
-def loadHDF(load_addr, hierarchy='flat', groups='all', track_order=True, dtyp='float', **kwds):
-    """ Load contents in an HDF.
+def loadHDF(load_addr, hierarchy="flat", groups="all", track_order=True, dtyp="float", **kwds):
+    """Load contents in an HDF.
 
     **Parameters**\n
     load_addr: str
@@ -196,13 +189,12 @@ def loadHDF(load_addr, hierarchy='flat', groups='all', track_order=True, dtyp='f
     """
 
     outdict = {}
-    if hierarchy == 'nested':
-        outdict = dictdump.load(load_addr, fmat='h5')
+    if hierarchy == "nested":
+        outdict = dictdump.load(load_addr, fmat="h5")
 
-    elif hierarchy == 'flat':
+    elif hierarchy == "flat":
         with File(load_addr, track_order=track_order, **kwds) as f:
-
-            if groups == 'all':
+            if groups == "all":
                 groups = list(f)
 
             for g in groups:
@@ -212,10 +204,10 @@ def loadHDF(load_addr, hierarchy='flat', groups='all', track_order=True, dtyp='f
     return outdict
 
 
-def loadH5Parts(filename, content, outtype='dict', alias=None):
+def loadH5Parts(filename, content, outtype="dict", alias=None):
     """
     Load specified content from a single complex HDF5 file.
-    
+
     **Parameters**\n
     filename: str
         Namestring of the file.
@@ -226,26 +218,26 @@ def loadH5Parts(filename, content, outtype='dict', alias=None):
     alias: list/tuple | None
         Collection of aliases to assign to each entry in content in the output dictionary.
     """
-    
+
     with File(filename) as f:
         if alias is None:
             outdict = {k: np.array(f[k]) for k in content}
         else:
             if len(content) != len(alias):
-                raise ValueError('Not every content entry is assigned an alias!')
+                raise ValueError("Not every content entry is assigned an alias!")
             else:
                 outdict = {ka: np.array(f[k]) for k in content for ka in alias}
-    
-    if outtype == 'dict':
+
+    if outtype == "dict":
         return outdict
-    elif outtype == 'list':
+    elif outtype == "list":
         return list(outdict.items())
-    elif outtype == 'vals':
+    elif outtype == "vals":
         return list(outdict.values())
 
 
 def load_bandstruct(path, form, varnames=[]):
-    """ Load band structure information from file.
+    """Load band structure information from file.
 
     **Parameters**\n
     path: str
@@ -258,19 +250,19 @@ def load_bandstruct(path, form, varnames=[]):
 
     nvars = len(varnames)
     if nvars == 0:
-        varnames = ['bands', 'kxx', 'kyy']
+        varnames = ["bands", "kxx", "kyy"]
 
-    if form == 'mat':
+    if form == "mat":
         mat = sio.loadmat(path)
         return [mat[vn] for vn in varnames]
 
-    elif form in ('h5', 'hdf5'):
-        dct = loadHDF(path, hierarchy='flat', group=varnames)
+    elif form in ("h5", "hdf5"):
+        dct = loadHDF(path, hierarchy="flat", group=varnames)
         return [dct[vn] for vn in varnames]
 
 
-def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **kwargs):
-    """ Custom loader for multiple reconstructed bands.
+def load_multiple_bands(folder, ename="", kname="", form="h5", dtyp="float", **kwargs):
+    """Custom loader for multiple reconstructed bands.
 
     **Parameters**\n
     folder: str
@@ -285,7 +277,7 @@ def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **k
         Extra keywords for ``h5py.File()``.
     """
 
-    if form in ('h5', 'hdf5'):
+    if form in ("h5", "hdf5"):
         files = nts.natsorted(g.glob(f"{folder}/*.h5"))
     else:
         files = nts.natsorted(g.glob(f"{folder}/*.{form}"))
@@ -310,8 +302,8 @@ def load_multiple_bands(folder, ename='', kname='', form='h5', dtyp='float', **k
     return econtents, kcontents
 
 
-def load_calculation(path, nkx=120, nky=55, delim=' ', drop_pos=2, drop_axis=1, baxis=None, maxid=None):
-    """ Read and reshape energy band calculation results.
+def load_calculation(path, nkx=120, nky=55, delim=" ", drop_pos=2, drop_axis=1, baxis=None, maxid=None):
+    """Read and reshape energy band calculation results.
 
     **Parameters**\n
     path: str
@@ -333,18 +325,18 @@ def load_calculation(path, nkx=120, nky=55, delim=' ', drop_pos=2, drop_axis=1, 
     """
 
     nkx, nky = int(nkx), int(nky)
-    nk = nkx*nky
+    nk = nkx * nky
     arr = np.fromfile(path, sep=delim)
     neb = int(arr.size / nk)
 
     if maxid is None:
-        ebands = arr[:nk*neb].reshape((nk, neb))
+        ebands = arr[: nk * neb].reshape((nk, neb))
     else:
         maxid = int(maxid)
         ebands = arr[:maxid].reshape((nk, neb))
 
-    if drop_axis is not None: # Drop the constant column (i.e. the kz axis)
-        ebands = np.delete(ebands, drop_pos, axis=drop_axis).reshape((nky, nkx, neb-1))
+    if drop_axis is not None:  # Drop the constant column (i.e. the kz axis)
+        ebands = np.delete(ebands, drop_pos, axis=drop_axis).reshape((nky, nkx, neb - 1))
 
     if baxis is not None:
         baxis = int(baxis)
@@ -353,8 +345,8 @@ def load_calculation(path, nkx=120, nky=55, delim=' ', drop_pos=2, drop_axis=1, 
     return ebands
 
 
-def pick_operator(fstring, package='numpy'):
-    """ Return an operator function from the specified pacakge.
+def pick_operator(fstring, package="numpy"):
+    """Return an operator function from the specified pacakge.
 
     Parameter:
         sstring: str
@@ -364,25 +356,23 @@ def pick_operator(fstring, package='numpy'):
     """
 
     try:
-        exec('import ' + package)
-        return eval(package + '.' + fstring)
+        exec("import " + package)
+        return eval(package + "." + fstring)
     except:
         return fstring
 
 
 def nzbound(arr):
-    """ Find index bounds of the nonzero elements of a 1D array.
-    """
+    """Find index bounds of the nonzero elements of a 1D array."""
 
     arr = np.asarray(arr)
-    axis_nz_index = np.argwhere(arr!=0).ravel()
+    axis_nz_index = np.argwhere(arr != 0).ravel()
 
     return axis_nz_index[0], axis_nz_index[-1]
 
 
 def segmod(indices):
-    """ Add 1 to the intermediate indices.
-    """
+    """Add 1 to the intermediate indices."""
 
     alt_indices = indices + 1
     alt_indices[0] -= 1
@@ -392,15 +382,14 @@ def segmod(indices):
 
 
 def fexp(ke, length):
-    """ Exponential function.
-    """
-    
-    return np.exp(-ke * np.arange(0, length, 1))
-    
+    """Exponential function."""
 
-def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, seed=None, **kwargs):
-    """ Generate random sequence from a distribution modulated by an envelope function and a mask.
-    
+    return np.exp(-ke * np.arange(0, length, 1))
+
+
+def coeffgen(size, amp=1, distribution="uniform", mask=None, modulation=None, seed=None, **kwargs):
+    """Generate random sequence from a distribution modulated by an envelope function and a mask.
+
     **Parameters**\n
     size: list/tuple
         Size of the coefficient array.
@@ -417,24 +406,24 @@ def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, se
     **kwargs: keyword arguments
         Additional arguments for the specified distribution function.s
     """
-    
-    op_package = kwargs.pop('package', 'numpy.random')
-    
+
+    op_package = kwargs.pop("package", "numpy.random")
+
     # Seeding random number generation
     if seed is not None:
         np.random.seed(seed)
-    
+
     # Apply envelope modulation
     if modulation is not None:
-        if modulation == 'exp':
-            ke = kwargs.pop('ke', 2e-2)
-            length = kwargs.pop('length', size[1])
+        if modulation == "exp":
+            ke = kwargs.pop("ke", 2e-2)
+            length = kwargs.pop("length", size[1])
             cfmod = fexp(ke, length)[None, :]
         elif type(modulation) == np.ndarray:
             cfmod = modulation
     else:
         cfmod = np.ones(size)
-    
+
     # Apply zero mask
     if mask is not None:
         if mask.ndim == 1:
@@ -443,18 +432,18 @@ def coeffgen(size, amp=1, distribution='uniform', mask=None, modulation=None, se
             cfmask = mask
     else:
         cfmask = np.ones(size)
-        
+
     # Generate basis coefficient
     opr = pick_operator(distribution, package=op_package)
     cfout = opr(size=size, **kwargs)
-    
-    cfout *= amp*cfmask*cfmod
-    
+
+    cfout *= amp * cfmask * cfmod
+
     return cfout
 
 
-def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq='geq'):
-    """ Binarize an array by a threshold.
+def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq="geq"):
+    """Binarize an array by a threshold.
 
     **Parameters**\n
     cfs: list/tuple/numpy array
@@ -473,26 +462,26 @@ def binarize(cfs, threshold, vals=[0, 1], absolute=True, eq='geq'):
     arr: list/tuple/numpy array
         Binarized array.
     """
-    
+
     arr = np.array(cfs)
     if absolute:
         arr = np.abs(arr)
-    
-    if eq == 'leq':
+
+    if eq == "leq":
         arr[arr <= threshold] = vals[0]
         arr[arr > threshold] = vals[1]
-    elif eq == 'geq':
+    elif eq == "geq":
         arr[arr < threshold] = vals[0]
         arr[arr >= threshold] = vals[1]
     elif eq is None:
         arr[arr < threshold] = vals[0]
         arr[arr > threshold] = vals[1]
-    
+
     return arr
 
 
 def trim_2d_edge(arr, edges, axes=(0, 1)):
-    """ Trim 2D edges in the first two dimensions of an nD array.
+    """Trim 2D edges in the first two dimensions of an nD array.
 
     **Parameters**\n
     arr: numpy array
@@ -508,18 +497,18 @@ def trim_2d_edge(arr, edges, axes=(0, 1)):
     trimmed: numpy array
         Axis-trimmed array.
     """
-    
+
     edges = np.array(edges)
     trimmed = np.moveaxis(arr, axes, (0, 1))
-    
+
     if edges.size == 1:
         eg = edges.item()
-        trimmed = trimmed[eg:-eg,eg:-eg,...]
-    
+        trimmed = trimmed[eg:-eg, eg:-eg, ...]
+
     elif edges.size == 4:
         top, bot, left, rite = edges
-        trimmed = trimmed[top:-bot, left:-rite,...]
+        trimmed = trimmed[top:-bot, left:-rite, ...]
 
     trimmed = np.moveaxis(trimmed, (0, 1), axes)
-    
+
     return trimmed
