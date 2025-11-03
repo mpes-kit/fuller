@@ -925,7 +925,7 @@ class MrfRec:
         """Plot reconstructed electronic band structure.
 
         **Parameters**\n
-        surfPlot: bool | Falsedelay
+        surfPlot: bool | False
             Flag, if true a surface plot is shown in addition.
         cmapName: str | 'viridis'
             Name of the colormap.
@@ -949,8 +949,8 @@ class MrfRec:
         plt.pcolormesh(x, y, Eb[:,:,t], cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-        plt.xlabel("$k_x (\AA^{-1})$", fontsize=24)
-        plt.ylabel("$k_y (\AA^{-1})$", fontsize=24)
+        plt.xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
+        plt.ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
         cb = plt.colorbar(pad=0.02)
         cb.ax.tick_params(labelsize=20)
         cb.set_label(label="$E (eV)$", fontsize=24)
@@ -963,8 +963,8 @@ class MrfRec:
             fig = plt.figure()
             ax = fig.gca(projection="3d")
             ax.plot_surface(x, y, np.transpose(Eb[:,:,t]))
-            ax.set_xlabel("$k_x (\AA^{-1})$", fontsize=24)
-            ax.set_ylabel("$k_y (\AA^{-1})$", fontsize=24)
+            ax.set_xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
+            ax.set_ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
             ax.set_zlabel("$E (eV)$", fontsize=24)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
@@ -984,7 +984,7 @@ class MrfRec:
         ax = fig.gca()
         ax.plot(epoch, -self.logP[:,:,t], linewidth=2.0)
         ax.set_xlabel("epochs", fontsize=24)
-        ax.set_ylabel("$-\log(p)+$" + "const", fontsize=24)
+        ax.set_ylabel(r"$-\log(p)+$" + "const", fontsize=24)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
 
