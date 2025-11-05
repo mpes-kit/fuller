@@ -22,6 +22,7 @@ class MrfRec:
         E,
         kx=None,
         ky=None,
+        delay = None,
         I=None,
         E0=None,
         eta=0.1,
@@ -37,8 +38,10 @@ class MrfRec:
             Momentum along x axis as numpy array.
         ky: 1D array | None
             Momentum along y axis as numpy array.
-        I: 3D array | None
-            Measured intensity wrt momentum (rows) and energy (columns), generated if None.
+        Delay: 1D array | None
+            Delay along time axis as numpy array.
+        I: 4D array | None
+            Measured intensity wrt momentum, time and energy, generated if None.
         E0: numeric | None
             Initial guess for band structure energy values, if None mean of E is taken.
         eta: numeric | 0.1
@@ -60,9 +63,11 @@ class MrfRec:
         # Store data in object
         self.kx = kx.copy()
         self.ky = ky.copy()
+        self.delay = delay.copy()
         self.E = E.copy()
         self.lengthKx = kx.size
         self.lengthKy = ky.size
+        self.lengthdelay = delay.size
         self.lengthE = E.size
         self.I = I
         # Shift I because of log
@@ -79,11 +84,13 @@ class MrfRec:
 
         # Initialize band structure
         if E0 is None:
-            self.indEb = np.ones((self.lengthKx, self.lengthKx), int) * int(self.lengthE / 2)
+            self.indEb = np.ones((self.lengthKx, self.lengthKx, self.lengthdelay), int) * int(self.lengthE / 2)
         else:
             EE, EE0 = np.meshgrid(E, E0)
             ind1d = np.argmin(np.abs(EE - EE0), 1)
             self.indEb = ind1d.reshape(E0.shape)
+            self.indEb = np.repeat(self.indEb[ :, :, np.newaxis], self.lengthdelay, axis=2)
+            # depends on the shape of E0, i assume E0 is the same for all times
         self.indE0 = self.indEb.copy()
 
         # Initialize change of log likelihood up to constant
@@ -111,6 +118,7 @@ class MrfRec:
         kx = data["kx"]
         ky = data["ky"]
         I = data["V"]
+        t = data["delay"]  
         if "E" in data:
             E = data["E"]
         else:
@@ -120,7 +128,7 @@ class MrfRec:
             E /= np.max(E)
 
         # Construct object
-        return cls(E, kx, ky, I=I, E0=E0, eta=eta)
+        return cls(E, kx, ky, t, I=I, E0=E0, eta=eta)
 
     @classmethod
     def loadBandsMat(cls, path):
@@ -212,6 +220,8 @@ class MrfRec:
         EE, EE0 = np.meshgrid(self.E, self.E0)
         ind1d = np.argmin(np.abs(EE - EE0), 1)
         self.indEb = ind1d.reshape(self.E0.shape)
+        self.indEb = np.repeat(self.indEb[ :, :, np.newaxis], self.lengthdelay, axis=2)
+        # depends on the shape of E0, i assume E0 is the same for all times
         self.indE0 = self.indEb.copy()
 
         # Reinitialize logP
@@ -225,7 +235,9 @@ class MrfRec:
             The vector containing the Gaussian filter standard deviations in pixel space for kx, ky, and E.
         """
 
-        self.I = ndimage.gaussian_filter(self.I, sigma=sigma)
+        for t in range(len(self.delay)):
+            self.I[:,:,:,t] = ndimage.gaussian_filter(self.I[:,:,:,t], sigma=sigma)
+        # smoothing of each time seperatly
 
         # Reinitialize logP
         self.delHist()
@@ -258,13 +270,15 @@ class MrfRec:
         try:
             from mclahe import mclahe
 
-            self.I = mclahe(
-                self.I,
-                kernel_size=kernel_size,
-                n_bins=n_bins,
-                clip_limit=clip_limit,
-                use_gpu=use_gpu,
-            )
+            for t in range(self.lengthdelay):
+                self.I[:,:,:,t] = mclahe(
+                    self.I[:,:,:,t] ,
+                    kernel_size=kernel_size,
+                    n_bins=n_bins,
+                    clip_limit=clip_limit,
+                    use_gpu=use_gpu,
+                )
+
         except ImportError:
             wn.warn("The package mclahe is not installed, therefore no contrast enhancement is performed.")
 
@@ -297,20 +311,31 @@ class MrfRec:
             indXRef = np.min(np.where(self.kx > 0.0)[0])
             lIndX = np.min([indXRef, self.lengthKx - indXRef])
             indX = np.arange(indXRef - lIndX, indXRef + lIndX)
-            self.I[indX, :, :] = (self.I[indX, :, :] + self.I[np.flip(indX, axis=0), :, :]) / 2
-
+            
             # Symmetrize wrt plane perpendicular to ky axis
             indYRef = np.min(np.where(self.ky > 0.0)[0])
             lIndY = np.min([indYRef, self.lengthKy - indYRef])
             indY = np.arange(indYRef - lIndY, indYRef + lIndY)
-            self.I[:, indY, :] = (self.I[:, indY, :] + self.I[:, np.flip(indY, axis=0), :]) / 2
+            
+            # Symmetrize for each time seperatly
+            for t in range(len(self.delay)):
+                self.I[indX, :, :,t] = (
+                    self.I[indX, :, :,t] + self.I[np.flip(indX, axis=0), :, :,t]
+                ) / 2
+
+                self.I[:, indY, :,t] = (
+                    self.I[:, indY, :,t] + self.I[:, np.flip(indY, axis=0), :,t]
+                ) / 2
 
         # Rotational symmetrization
         if rotational:
             center = (np.argmin(np.abs(self.kx)), np.argmin(np.abs(self.ky)))
-            for i in range(self.I.shape[2]):
-                self.I[:, :, i], _ = rotosymmetrize(self.I[:, :, i], center, rotsym=rotational_order)
-
+            # Symmetrize for each time seperatly
+            for t in range(len(self.delay)):
+                for i in range(self.I[:,:,:,t].shape[2]):
+                    self.I[:, :, i,t], _ = rotosymmetrize(
+                        self.I[:, :, i,t], center, rotsym=rotational_order
+                    )
         # Reinitialize logP
         self.delHist()
 
@@ -336,38 +361,38 @@ class MrfRec:
             ECurv = self.E / (np.sqrt(2) * self.etaCurv)
 
         # Do iterations
-        indList = np.random.choice(self.lengthKx * self.lengthKy, self.lengthKx * self.lengthKy * num_epoch)
+        indList = np.random.choice(self.lengthKx * self.lengthKy* self.lengthdelay, self.lengthKx * self.lengthKy * self.lengthdelay* num_epoch)
         for i, ind in enumerate(tqdm(indList, disable=disable_tqdm)):
-            indx = ind // self.lengthKy
-            indy = ind % self.lengthKy
+            indt = ind // (self.lengthKx * self.lengthKy) 
+            ind_rem = ind % (self.lengthKx * self.lengthKy)
+
+            indx = ind_rem // self.lengthKy
+            indy = ind_rem % self.lengthKy
             # Get logP for given index
+            
             logP = 0
             if indx > 0:
-                logP -= (ENN - ENN[self.indEb[indx - 1, indy]]) ** 2
-                if self.includeCurv:
-                    if indx > 1:
-                        logP -= (ECurv[self.indEb[indx - 2, indy]] - 2 * ECurv[self.indEb[indx - 1, indy]] + ECurv) ** 2
-                    if indx < (self.lengthKx - 1):
-                        logP -= (ECurv[self.indEb[indx - 1, indy]] - 2 * ECurv + ECurv[self.indEb[indx + 1, indy]]) ** 2
+                logP -= (ENN - ENN[self.indEb[indx - 1, indy, indt]]) ** 2
+                
             if indx < (self.lengthKx - 1):
-                logP -= (ENN - ENN[self.indEb[indx + 1, indy]]) ** 2
-                if self.includeCurv:
-                    if indx < (self.lengthKx - 2):
-                        logP -= (ECurv[self.indEb[indx - 2, indy]] - 2 * ECurv[self.indEb[indx - 1, indy]] + ECurv) ** 2
+                logP -= (ENN - ENN[self.indEb[indx + 1, indy, indt]]) ** 2
+                
             if indy > 0:
-                logP -= (ENN - ENN[self.indEb[indx, indy - 1]]) ** 2
-                if self.includeCurv:
-                    if indy > 1:
-                        logP -= (ECurv[self.indEb[indx, indy - 2]] - 2 * ECurv[self.indEb[indx, indy - 1]] + ECurv) ** 2
-                    if indy < (self.lengthKy - 1):
-                        logP -= (ECurv[self.indEb[indx, indy - 1]] - 2 * ECurv + ECurv[self.indEb[indx, indy + 1]]) ** 2
+                logP -= (ENN - ENN[self.indEb[indx, indy - 1, indt]]) ** 2
+
             if indy < (self.lengthKy - 1):
-                logP -= (ENN - ENN[self.indEb[indx, indy + 1]]) ** 2
-                if self.includeCurv:
-                    if indy < (self.lengthKy - 2):
-                        logP -= (ECurv[self.indEb[indx, indy - 2]] - 2 * ECurv[self.indEb[indx, indy - 1]] + ECurv) ** 2
-            logP += logI[indx, indy, :]
-            self.indEb[indx, indy] = np.argmax(logP)
+                logP -= (ENN - ENN[self.indEb[indx, indy + 1, indt]]) ** 2
+
+            if indt > 0:
+                    logP -= (ENN - ENN[self.indEb[indx, indy, indt-1]]) ** 2
+
+            if indt < (self.lengthdelay - 1):
+                    logP -= (ENN - ENN[self.indEb[indx, indy, indt+1]]) ** 2
+
+            logP += logI[indx, indy, :, indt]
+            self.indEb[indx, indy, indt] = np.argmax(logP)
+            
+            # if updateLopP is not updated yet
             if updateLogP and (
                 ((i + 1) % (self.lengthKx * self.lengthKy)) == 0
                 or ((i + 1) % (self.lengthKx * self.lengthKy)) == (self.lengthKx * self.lengthKy // 2)
@@ -377,46 +402,59 @@ class MrfRec:
         self.epochsDone += num_epoch
 
     @tf.function
-    def compute_logP(self, E1d, E3d, logI, indEb, lengthKx):
-        squDiff = [[tf.square(tf.gather(E1d, indEb[i][j]) - E3d) for j in range(2)] for i in range(2)]
-        logP = self._initSquMat(2)
-        for i in range(2):
-            for j in range(2):
-                logP[i][j] = (
-                    logI[i][j]
-                    - squDiff[i - 1][j]
-                    - squDiff[i][j - 1]
-                    - tf.pad(
-                        squDiff[i - 1][j][i : (lengthKx // 2 - 1 + i), :, :],
-                        [[1 - i, i], [0, 0], [0, 0]],
+    def compute_logP(self, E1d, E3d, logI, indEb, lengthKx, lengthKy, lengthdelay):
+        squDiff = [[
+            [tf.square(tf.gather(E1d, indEb[i][j][t]) - E3d) for j in range(2)]
+            for i in range(2)
+        ] for t in range(2)]
+
+        logP = self._initCube(2)
+
+        for t in range(2):
+            for i in range(2):
+                for j in range(2):
+                    logP[i][j][t] = (
+                        logI[i][j][t]
+                        - squDiff[i - 1][j][t]
+                        - squDiff[i][j - 1][t]
+                        - squDiff[i][j][t - 1]
+                        - tf.pad(
+                            squDiff[i-1][j][t][i : (lengthKx // 2 - 1 + i), :, :, :],
+                            [[1 - i, i],[0, 0], [0, 0], [0, 0]],
+                        )
+                        - tf.pad(
+                            squDiff[i][j - 1][t][:, j : (lengthKy // 2 - 1 + j), :, :],
+                            [[0, 0],[1 - j, j], [0, 0], [0, 0]],
+                        )
+                        - tf.pad(squDiff[i][j][t - 1][:, :, t : (lengthdelay // 2 - 1 + t), :],
+                                  [[0, 0],[0, 0], [1 - t, t], [0, 0]],)
                     )
-                    - tf.pad(
-                        squDiff[i][j - 1][:, j : (lengthKx // 2 - 1 + j), :],
-                        [[0, 0], [1 - j, j], [0, 0]],
-                    )
-                )
         return logP
 
     @tf.function
     def compute_logPTot(self, logP, logI, indEb):
         return (
-            tf.reduce_sum(tf.gather(logP[0][0], indEb[0][0], batch_dims=2))
-            + tf.reduce_sum(tf.gather(logP[1][1], indEb[1][1], batch_dims=2))
-            + tf.reduce_sum(tf.gather(logI[0][1], indEb[0][1], batch_dims=2))
-            + tf.reduce_sum(tf.gather(logI[1][0], indEb[1][0], batch_dims=2))
-        )
+            tf.reduce_sum(tf.gather(logP[0][0][0], indEb[0][0][0], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logP[0][1][1], indEb[0][1][1], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logI[0][0][1], indEb[0][0][1], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logI[0][1][0], indEb[0][1][0], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logP[1][0][0], indEb[1][0][0], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logP[1][1][1], indEb[1][1][1], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logI[1][0][1], indEb[1][0][1], batch_dims=3))
+            + tf.reduce_sum(tf.gather(logI[1][1][0], indEb[1][1][0], batch_dims=3))
+        ) 
 
     @tf.function
     def compute_updateW(self, logP):
         # white Nodes
-        updateW = [tf.argmax(logP[i][i], axis=2, output_type=tf.int32) for i in range(2)]
+        updateW = [[tf.argmax(logP[i][np.abs(i-t)][t], axis=3, output_type=tf.int32) for i in range(2)] for t in range(2)]
 
         return updateW
 
     @tf.function
     def compute_updateB(self, logP):
         # black Nodes
-        updateB = [tf.argmax(logP[i][1 - i], axis=2, output_type=tf.int32) for i in range(2)]
+        updateB = [[tf.argmax(logP[i][np.abs(1-i-t)][t], axis=3, output_type=tf.int32) for i in range(2)] for t in range(2)]
 
         return updateB
 
@@ -447,44 +485,64 @@ class MrfRec:
 
         with contextlib.nullcontext() if use_gpu else tf.device("/CPU:0"):
             if updateLogP:
-                self.logP = np.append(self.logP, np.zeros(2 * num_epoch))
+                for t in range(len(self.delay)): 
+                    self.logP[:,:,:,t] = np.append(self.logP[:,:,:,t], np.zeros(2 * num_epoch))
             lengthKx = 2 * (self.lengthKx // 2)
             lengthKy = 2 * (self.lengthKy // 2)
-            indX, indY = np.meshgrid(np.arange(lengthKx, step=2), np.arange(lengthKy, step=2), indexing="ij")
-            logI = [[tf.constant(np.log(self.I[indX + i, indY + j, :])) for j in range(2)] for i in range(2)]
-            indEb = [
-                [tf.Variable(np.expand_dims(self.indEb[indX + i, indY + j], 2), dtype=tf.int32) for j in range(2)]
+            lengthdelay = 2 * (self.lengthdelay // 2)
+            indX, indY, indt = np.meshgrid(np.arange(lengthKx, step=2),
+                np.arange(lengthKy, step=2), np.arange(lengthdelay, step=2), indexing="ij"
+            )
+            # So that I is shape (kx,ky,time,energy)
+            I1 = np.transpose(self.I, axes=(0, 1, 3, 2))
+
+            logI = [[
+                [tf.constant(np.log(I1[ indX + i, indY + j, indt + t, :])) for j in range(2)]
                 for i in range(2)
-            ]
+            ]for t in range(2)]
+
+            indEb = [[
+                [
+                    tf.Variable(
+                        np.expand_dims(self.indEb[indX + i, indY + j, indt + t], 3), dtype=tf.int32
+                    )
+                    for j in range(2)
+                ]
+                for i in range(2)
+            ] for t in range(2)]
+
             E1d = tf.constant(self.E / (np.sqrt(2) * self.eta))
             E3d = tf.constant(self.E / (np.sqrt(2) * self.eta), shape=(1, 1, self.E.shape[0]))
 
-            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+            logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx, lengthKy, lengthdelay)
 
             for epoch in tqdm(range(num_epoch), disable=disable_tqdm):
                 # white nodes
                 updateW = self.compute_updateW(logP)
-                for i in range(2):
-                    indEb[i][i].assign(tf.expand_dims(updateW[i], 2))
-                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                for t in range(2):
+                    for i in range(2):
+                        indEb[i][np.abs(i-t)][t].assign(tf.expand_dims(updateW[i][t], 3))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx, lengthKy, lengthdelay)
                 if updateLogP:
                     self.logP[2 * epoch + 1] = self.compute_logPTot(logP, logI, indEb).numpy()
 
                 # black nodes
                 updateB = self.compute_updateB(logP)
-                for i in range(2):
-                    indEb[i][1 - i].assign(tf.expand_dims(updateB[i], 2))
-                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx)
+                for t in range(2):
+                    for i in range(2):
+                        indEb[i][np.abs(1-i-t)][t].assign(tf.expand_dims(updateB[i][t], 3))
+                logP = self.compute_logP(E1d, E3d, logI, indEb, lengthKx, lengthKy, lengthdelay)
                 if updateLogP:
                     self.logP[2 * epoch + 2] = self.compute_logPTot(logP, logI, indEb).numpy()
 
             # Extract results
-            indEbOut = [[indEb_val.numpy()[:, :, 0] for indEb_val in indEb_row] for indEb_row in indEb]
-
+            indEbOut = [[[indEb_val.numpy()[:, :, 0,:] for indEb_val in indEb_row]
+                    for indEb_row in indEb_plane] for indEb_plane in indEb]
         # Store results
-        for i in range(2):
-            for j in range(2):
-                self.indEb[indX + i, indY + j] = indEbOut[i][j]
+        for t in range(2):
+            for i in range(2):
+                for j in range(2):
+                    self.indEb[ indX + i, indY + j, indt + t] = indEbOut[i][j][t]
 
         self.epochsDone += num_epoch
 
@@ -703,15 +761,26 @@ class MrfRec:
         """Retrieve the log likelihood of the electronic band structure given the model."""
 
         # Likelihood terms
-        indKx, indKy = np.meshgrid(np.arange(self.lengthKx), np.arange(self.lengthKy), indexing="ij")
-        logP = np.sum(np.log(self.I[indKx, indKy, self.indEb]))
+        indKx, indKy, indt = np.meshgrid(
+            np.arange(self.lengthKx), np.arange(self.lengthKy),np.arange(self.lengthdelay), indexing="ij"
+        )
+        I1 = np.transpose(self.I, axes=(0, 1, 3, 2))
+
+        logP = np.sum(np.log(I1[indKx, indKy, indt, self.indEb]))
         # Interaction terms
         Eb = self.getEb()
         if self.lengthKx > 1:
-            logP -= np.sum((Eb[0 : (self.lengthKx - 1), :] - Eb[1 : self.lengthKx, :]) ** 2) / (2 * self.eta**2)
+            logP -= np.sum(
+                (Eb[ 0 : (self.lengthKx - 1), :,:] - Eb[1 : self.lengthKx, :,:]) ** 2
+            ) / (2 * self.eta**2)
         if self.lengthKy > 1:
-            logP -= np.sum((Eb[:, 0 : (self.lengthKy - 1)] - Eb[:, 1 : self.lengthKy]) ** 2) / (2 * self.eta**2)
-
+            logP -= np.sum(
+                (Eb[:, 0 : (self.lengthKy - 1),:] - Eb[:, 1 : self.lengthKy,:]) ** 2
+            ) / (2 * self.eta**2)
+        if self.lengthdelay > 1:
+            logP -= np.sum(
+                (Eb[:, : ,0 :(self.lengthdelay - 1)] - Eb[:, : ,1:self.lengthdelay]) ** 2
+            ) / (2 * self.eta**2)
         return logP
 
     def plotI(
@@ -719,6 +788,7 @@ class MrfRec:
         kx=None,
         ky=None,
         E=None,
+        time=None,
         cmapName="viridis",
         plotBand=False,
         plotBandInit=False,
@@ -731,7 +801,7 @@ class MrfRec:
         """Plot the intensity against k and E.
 
         **Parameters**\n
-        kx, ky: 1D array, 1D array | None, None
+        kx, ky, time: 1D array, 1D array | None, None
             kx, ky to plot respective slice.
         E: 1D array | None
             E to plot respective slice.
@@ -752,31 +822,46 @@ class MrfRec:
         """
 
         # Prepare data to plot
-        if kx is not None:
+        if kx is not None and time is not None:
             indKx = np.argmin(np.abs(self.kx - kx))
+            t = np.argmin(np.abs(self.delay - time))
             x, y = np.meshgrid(self.ky, self.E)
-            z = np.transpose(self.I[indKx, :, :])
+            z = np.transpose(self.I[indKx, :, :,t])
             lab = [r"$k_y (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.ky
-            bandY = Eb[indKx, :]
-            initY = E0[indKx, :]
-        if ky is not None:
+            bandY = Eb[indKx, :,t]
+            initY = E0[indKx, :,t]
+        if ky is not None and time is not None:
             indKy = np.argmin(np.abs(self.ky - ky))
+            t = np.argmin(np.abs(self.delay - time))
             x, y = np.meshgrid(self.kx, self.E)
-            z = np.transpose(self.I[:, indKy, :])
+            z = np.transpose(self.I[:, indKy, :,t])
             lab = [r"$k_x (\AA^{-1})$", "$E (eV)$"]
             Eb = self.getEb()
             E0 = self.E[self.indE0].copy()
             bandX = self.kx
-            bandY = Eb[:, indKy]
-            initY = E0[:, indKy]
-        if E is not None:
+            bandY = Eb[:, indKy, t]
+            initY = E0[:, indKy, t]
+        if E is not None and time is not None:
             indE = np.argmin(np.abs(self.E - E))
+            t = np.argmin(np.abs(self.delay - time))
             x, y = np.meshgrid(self.kx, self.ky)
-            z = np.transpose(self.I[:, :, indE])
+            z = np.transpose(self.I[:, :, indE,t])
             lab = [r"$k_x (\AA^{-1})$", r"$k_y (\AA^{-1})$"]
+        if kx is not None and ky is not None:
+            indKy = np.argmin(np.abs(self.ky - ky))
+            indKx = np.argmin(np.abs(self.kx - kx))
+            x, y = np.meshgrid(self.delay, self.E)
+            I1 = np.transpose(self.I, axes=(0, 1, 3, 2))
+            z = np.transpose(I1[indKx, indKy, :,:])
+            lab = [r"$delay (tbd)$" , r"$E (eV)$"]
+            Eb = self.getEb()
+            E0 = self.E[self.indE0].copy()
+            bandX = self.delay
+            bandY = Eb[indKx, indKy,:]
+            initY = E0[indKx, indKy, :]
 
         # Plot I
         plt.rcParams["figure.figsize"] = figsize
@@ -805,9 +890,10 @@ class MrfRec:
             if plotBandInit:
                 plt.plot(bandX, initY, initColor, linewidth=2.0)
             if plotSliceInBand:
+                Eb = self.getEb()
                 x, y = np.meshgrid(self.kx, self.ky, indexing="ij")
                 plt.figure()
-                plt.pcolormesh(x, y, self.getEb())
+                plt.pcolormesh(x, y, Eb[:,:,time])
                 plt.xticks(fontsize=20)
                 plt.yticks(fontsize=20)
                 plt.xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
@@ -833,7 +919,9 @@ class MrfRec:
                         linewidth=2.0,
                     )
 
-    def plotBands(self, surfPlot=False, cmapName="viridis", figsize=[9, 9], equal_axes=False):
+    def plotBands(                
+        self, surfPlot=False, cmapName="viridis", figsize=[9, 9], equal_axes=False, time =None,
+    ):
         """Plot reconstructed electronic band structure.
 
         **Parameters**\n
@@ -846,14 +934,19 @@ class MrfRec:
         equal_axes: bool | False
             Option to apply the same scaling for both axes.
         """
+        if time is None:
+            t = 0
+        if time is not None:
+            t = time
 
         x, y = np.meshgrid(self.kx, self.ky, indexing="ij")
 
+        Eb = self.getEb()
         # Colormesh plot
         plt.rcParams["figure.figsize"] = figsize
         plt.figure()
         cmap = plt.get_cmap(cmapName)
-        plt.pcolormesh(x, y, self.getEb(), cmap=cmap)
+        plt.pcolormesh(x, y, Eb[:,:,t], cmap=cmap)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
         plt.xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
@@ -869,7 +962,7 @@ class MrfRec:
         if surfPlot:
             fig = plt.figure()
             ax = fig.gca(projection="3d")
-            ax.plot_surface(x, y, np.transpose(self.getEb()))
+            ax.plot_surface(x, y, np.transpose(Eb[:,:,t]))
             ax.set_xlabel(r"$k_x (\AA^{-1})$", fontsize=24)
             ax.set_ylabel(r"$k_y (\AA^{-1})$", fontsize=24)
             ax.set_zlabel("$E (eV)$", fontsize=24)
@@ -878,14 +971,18 @@ class MrfRec:
             for tick in ax.zaxis.get_major_ticks():
                 tick.label.set_fontsize(20)
 
-    def plotLoss(self):
+    def plotLoss(self, time = None):             #add t?
         """Plot the change of the negative log likelihood."""
+        if time is None:
+            t = 0
+        if time is not None:
+            t = time
 
-        epoch = np.linspace(0, self.epochsDone, len(self.logP), endpoint=True)
+        epoch = np.linspace(0, self.epochsDone, len(self.logP[:,:,t]), endpoint=True)
         plt.rcParams["figure.figsize"] = [9, 9]
         fig = plt.figure()
         ax = fig.gca()
-        ax.plot(epoch, -self.logP, linewidth=2.0)
+        ax.plot(epoch, -self.logP[:,:,t], linewidth=2.0)
         ax.set_xlabel("epochs", fontsize=24)
         ax.set_ylabel(r"$-\log(p)+$" + "const", fontsize=24)
         plt.xticks(fontsize=20)
@@ -969,3 +1066,17 @@ class MrfRec:
         """
 
         return [[el for _ in range(n)] for _ in range(n)]
+    def _initCube(self, n, el=None):
+        """Returns as square matrix of size nxn with el as element in each element.
+
+        **Parameters**\n
+        n: int
+            Size of the square matrix.
+        el: numeric | None
+            Values of each element.
+
+        **Return**\n
+            Square matrix of size nxn with el as element in each element.
+        """
+
+        return [[[el for _ in range(n)] for _ in range(n)] for _ in range(n)]
