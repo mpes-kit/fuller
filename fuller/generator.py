@@ -15,7 +15,7 @@ from . import utils as u
 try:
     from mpes import analysis as aly
 except:
-    wn.warn("The package mpes is not install, this could disable certain functionalities of the pacakge.")
+    wn.warn("The package mpes is not installed, this could disable certain functionalities of the package.")
 
 
 def hexmask(
